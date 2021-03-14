@@ -1,3 +1,4 @@
 /src/main/config.properties
+/build/
 *.class
 *.android_data_binding*.lock
