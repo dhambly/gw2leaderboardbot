@@ -17,10 +17,10 @@ public class CommandHandler {
             int counter = 0;
             for (GW2Account acc : api.getLeaderboard()) {
                 //System.out.println(acc.getName());
-                if (AccountListHandler.isAChimp(acc.getName())) {
+                if (acc.isAChimp()) {
                     System.out.println("Is a chimp");
                     counter++;
-                    sb.append(acc.toString()).append("\n");
+                    sb.append(acc.reformattedToString()).append("\n");
                 }
             }
             if (counter > 0) {
@@ -44,9 +44,9 @@ public class CommandHandler {
             StringBuilder sb = new StringBuilder();
             int counter = 0;
             for (GW2Account acc : api.getLeaderboard()) {
-                if (AccountListHandler.isAnEgirl(acc.getName())) {
+                if (acc.isAnEgirl()) {
                     counter++;
-                    sb.append(acc.toString()).append("\n");
+                    sb.append(acc.reformattedToString()).append("\n");
                 }
             }
             if (counter > 0) {

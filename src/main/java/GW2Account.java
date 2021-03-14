@@ -18,6 +18,25 @@ public class GW2Account {
         );
     }
 
+    public String reformattedToString() {
+        return String.format(
+                "Rank %d: **%s** *%d* (%d-%d)",
+                getRank(),
+                getName(),
+                getRating(),
+                getWins(),
+                getLosses()
+        );
+    }
+
+    public boolean isAChimp() {
+        return AccountListHandler.isAChimp(name);
+    }
+
+    public boolean isAnEgirl() {
+        return AccountListHandler.isAnEgirl(name);
+    }
+
     public String getScores() {
         return String.format("%d rating %dW %dL", rating, wins, losses);
     }
