@@ -1,15 +1,21 @@
 import net.dv8tion.jda.api.JDABuilder;
 
 import javax.security.auth.login.LoginException;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Properties;
 
 public class Main {
     public static void main(String[] args) throws LoginException, IOException {
-        String token = "ODIwNDg1OTA5MTQ4NTk4Mjgz.YE13DA.GWbE84fFLO0vjlkzzjFEzrG3qqQ";
+        Properties prop = new Properties();
+        prop.load(new FileInputStream("src/main/config.properties"));
+        String token = prop.getProperty("token");
         JDABuilder builder = JDABuilder.createDefault(token);
         APIHandler api = new APIHandler();
         builder.addEventListeners(new EventHandler(api));
         builder.build();
+        System.out.println("Currently running");
     }
 
 }
