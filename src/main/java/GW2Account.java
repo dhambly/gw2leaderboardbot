@@ -9,7 +9,7 @@ public class GW2Account {
 
     public String toString() {
         return String.format(
-                "Rank %d: %s   %d rating  %dW %dL",
+                "Rank %d: %s   %d rating  %d - %d",
                 getRank(),
                 getName(),
                 getRating(),

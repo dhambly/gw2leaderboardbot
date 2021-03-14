@@ -17,6 +17,8 @@ public class EventHandler extends ListenerAdapter {
             commands.chimpCheck(event);
         } else if (message.equalsIgnoreCase("ping")) {
             event.getChannel().sendMessage("pong").queue();
+        } else if (message.equalsIgnoreCase("!rankedegirls")) {
+            commands.listEgirlRanks(event);
         }
     }
 }
