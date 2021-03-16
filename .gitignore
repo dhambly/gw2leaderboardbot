@@ -1,6 +1,8 @@
 /src/main/config.properties
 /build/
+/out/
 *.class
+*.xml
 *.lock
 *.bin
 *.android_data_binding*.lock

@@ -1,6 +1,13 @@
 plugins {
     id 'java'
 }
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'Main'
+        )
+    }
+}
 
 group 'com.derickhambly'
 version '1.0-SNAPSHOT'
@@ -19,6 +26,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
 
 }
+
 
 test {
     useJUnitPlatform()

@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.stream.Stream;
 
 public class AccountListHandler {
-    private static final String ACCOUNT_PATH = "src/main/accountsets/";
+    private static final String ACCOUNT_PATH = "accountsets/";
     private static final HashMap<String, HashSet<String>> accountListMap = new HashMap<>();
 
 
@@ -37,6 +37,7 @@ public class AccountListHandler {
             lines.forEachOrdered(line-> tempSet.add(line.toLowerCase()));
             accountListMap.put(setName,tempSet);
         } catch (IOException e) {
+            System.out.println("Failed to find file");
             System.err.println(e.toString());
         }
     }

@@ -13,8 +13,7 @@ public class APIHandler {
     private LinkedList<String> seasonIDs;
     private String latestSeason;
 
-    public APIHandler() throws IOException {
-        initializeSeasons();
+    public APIHandler() throws IOException {        initializeSeasons();
     }
 
     private void initializeSeasons() throws IOException {
