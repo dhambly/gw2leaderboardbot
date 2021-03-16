@@ -20,13 +20,18 @@ public class GW2Account {
 
     public String reformattedToString() {
         return String.format(
-                "Rank %d: **%s** *%d* (%d-%d)",
+                "Rank %d: **%s**  *%d*  (%d-%d)",
                 getRank(),
                 getName(),
                 getRating(),
                 getWins(),
                 getLosses()
         );
+    }
+
+    //Parameter is the filename in src/main/accountsets directory containing list of accounts
+    public boolean isA(String listName) {
+        return AccountListHandler.accountIsA(this.getName(), listName);
     }
 
     public boolean isAChimp() {

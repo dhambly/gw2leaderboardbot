@@ -2,44 +2,40 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
 public class AccountListHandler {
     private static final String ACCOUNT_PATH = "src/main/accountsets/";
-    private static HashSet<String> chimpSet = new HashSet<>();
-    private static HashSet<String> egirlSet = new HashSet<>();
+    private static final HashMap<String, HashSet<String>> accountListMap = new HashMap<>();
+
+
+    public static boolean accountIsA(String account, String accountListName) {
+        if (!accountListMap.containsKey(accountListName)) {
+            initializeGeneralSet(accountListName);
+        }
+        return accountListMap.get(accountListName).contains(account.toLowerCase());
+    }
 
     public static Path getAccounts(String filename) {
         return Paths.get(ACCOUNT_PATH + filename);
     }
     public static boolean isAChimp(String acc) {
-        if (chimpSet.isEmpty()) {
-            initializeChimpSet();
-        }
-        return chimpSet.contains(acc.toLowerCase());
+        return accountIsA(acc, "chimps");
     }
 
     public static boolean isAnEgirl(String acc) {
-        if (egirlSet.isEmpty()) {
-            initializeEgirlSet();
-        }
-        return egirlSet.contains(acc.toLowerCase());
+        return accountIsA(acc, "egirls");
     }
 
-    private static void initializeEgirlSet() {
-        Path path = getAccounts("egirls");
-        try (Stream<String> lines = Files.lines(path)) {
-            lines.forEachOrdered(line-> egirlSet.add(line.toLowerCase()));
-        } catch (IOException e) {
-            System.err.println(e.toString());
-        }
-    }
 
-    public static void initializeChimpSet() {
-        Path path = getAccounts("chimps");
+    public static void initializeGeneralSet(String setName) {
+        Path path = getAccounts(setName);
         try (Stream<String> lines = Files.lines(path)) {
-            lines.forEachOrdered(line-> chimpSet.add(line.toLowerCase()));
+            HashSet<String> tempSet = new HashSet<>();
+            lines.forEachOrdered(line-> tempSet.add(line.toLowerCase()));
+            accountListMap.put(setName,tempSet);
         } catch (IOException e) {
             System.err.println(e.toString());
         }

@@ -50,7 +50,7 @@ public class CommandHandler {
                 }
             }
             if (counter > 0) {
-                String formattedMessage = (String.format("%d Egirls currently in the top 50: \n%s", counter, sb.toString()));
+                String formattedMessage = (String.format("%d egirls in the top 50: \n%s", counter, sb.toString()));
                 System.out.println(formattedMessage);
                 channel.sendMessage(formattedMessage).queue();
             } else {
