@@ -1,3 +1,6 @@
+import java.awt.*;
+import java.awt.font.FontRenderContext;
+
 public class GW2Account {
     private String name;
     private int rank;
@@ -20,15 +23,29 @@ public class GW2Account {
 
     public String reformattedToString() {
         return String.format(
-                "Rank %d: **%s**  *%d*  (%d-%d)",
+                "Rank %s%d: **%s**%s*%4d*  (%d-%d)",
+                getRank()>=10?"":" ",
                 getRank(),
                 getName(),
+                generateWhiteSpace(150-getBoldNameWidth()),
                 getRating(),
                 getWins(),
                 getLosses()
         );
     }
-
+    private String generateWhiteSpace(int w) {
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < w+2; i+=3) {
+            s.append(" ");
+        }
+        return s.toString();
+    }
+    private int getBoldNameWidth() {
+        Font font = new Font("Uni Sans", Font.TYPE1_FONT, 12);
+        return (int) font.getStringBounds(getName(),
+                new FontRenderContext(font.getTransform(), false, false))
+                .getBounds().getWidth();
+    }
     //Parameter is the filename in src/main/accountsets directory containing list of accounts
     public boolean isA(String listName) {
         return AccountListHandler.accountIsA(this.getName(), listName);
