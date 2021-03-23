@@ -5,13 +5,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
 
+@SuppressWarnings("rawtypes")
 public class APIHandler {
     private static final String GW2_APIURL = "https://api.guildwars2.com/v2";
     private static final String GW2API_SEASONURL = "https://api.guildwars2.com/v2/pvp/seasons";
     private static final String LEADERBOARDEXTENSION_NA = "/leaderboards/ladder/na";
     private static final String LEADERBOARDEXTENSION_EU = "/leaderboards/ladder/eu";
-    private LinkedList<String> seasonIDs;
-    private String latestSeason;
+    private LinkedList seasonIDs;
+    private Object latestSeason;
 
     public APIHandler() throws IOException {        initializeSeasons();
     }
