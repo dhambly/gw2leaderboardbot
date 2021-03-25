@@ -38,6 +38,12 @@ public class EventHandler extends ListenerAdapter {
             commands.gw2Addict(channel);
         } else if (message.equalsIgnoreCase("!leaderboardcommands") || message.equalsIgnoreCase("!commands")) {
             commands.help(channel);
+        } else if (message.equalsIgnoreCase("!kaypud")) {
+            commands.kaypud(channel);
+        } else if (message.equalsIgnoreCase("!moobs")) {
+            commands.checkmoobs(channel);
+        } else if (message.equalsIgnoreCase("!ari ebois")) {
+            commands.ariEbois(channel);
         }
     }
 }

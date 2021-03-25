@@ -43,7 +43,7 @@ public class GW2Account {
     private int getBoldNameWidth() {
         Font font = new Font("Uni Sans", Font.TYPE1_FONT, 12);
         return (int) font.getStringBounds(getName(),
-                new FontRenderContext(font.getTransform(), false, false))
+                new FontRenderContext(font.getTransform(), true, true))
                 .getBounds().getWidth();
     }
     //Parameter is the filename in src/main/accountsets directory containing list of accounts

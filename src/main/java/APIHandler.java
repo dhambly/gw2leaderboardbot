@@ -25,15 +25,20 @@ public class APIHandler {
         latestSeason = seasonIDs.getLast();
     }
 
-    public LinkedList<GW2Account> getLeaderboard() throws IOException {
+    public LinkedList<GW2Account> getLeaderboard()  {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(
-                new URL(GW2API_SEASONURL
-                        + "/"
-                        + latestSeason
-                        + LEADERBOARDEXTENSION_NA),
-                new TypeReference<LinkedList<GW2Account>>() {
-                });
+        try {
+            return mapper.readValue(
+                    new URL(GW2API_SEASONURL
+                            + "/"
+                            + latestSeason
+                            + LEADERBOARDEXTENSION_NA),
+                    new TypeReference<LinkedList<GW2Account>>() {
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new LinkedList<>();
     }
 
 }
