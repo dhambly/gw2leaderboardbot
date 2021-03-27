@@ -1,4 +1,6 @@
-public class GW2AccountScores {
+import java.io.Serializable;
+
+public class GW2AccountScores implements Serializable {
 
     private String id;
     private int value;

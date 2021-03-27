@@ -3,6 +3,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 @SuppressWarnings("rawtypes")
@@ -14,7 +15,8 @@ public class APIHandler {
     private LinkedList seasonIDs;
     private Object latestSeason;
 
-    public APIHandler() throws IOException {        initializeSeasons();
+    public APIHandler() throws IOException {
+        initializeSeasons();
     }
 
     private void initializeSeasons() throws IOException {
@@ -25,7 +27,7 @@ public class APIHandler {
         latestSeason = seasonIDs.getLast();
     }
 
-    public LinkedList<GW2Account> getLeaderboard()  {
+    public ArrayList<GW2Account> getLeaderboard()  {
         ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.readValue(
@@ -33,12 +35,12 @@ public class APIHandler {
                             + "/"
                             + latestSeason
                             + LEADERBOARDEXTENSION_NA),
-                    new TypeReference<LinkedList<GW2Account>>() {
+                    new TypeReference<ArrayList<GW2Account>>() {
                     });
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new LinkedList<>();
+        return new ArrayList<>();
     }
 
 }
