@@ -27,16 +27,22 @@ public class APIHandler {
         latestSeason = seasonIDs.getLast();
     }
 
-    public ArrayList<GW2Account> getLeaderboard()  {
+    public ArrayList<GW2Account> getLeaderboard() {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.readValue(
-                    new URL(GW2API_SEASONURL
-                            + "/"
-                            + latestSeason
-                            + LEADERBOARDEXTENSION_NA),
-                    new TypeReference<ArrayList<GW2Account>>() {
-                    });
+            ArrayList<GW2Account> list = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                list.addAll(mapper.readValue(
+                        new URL(GW2API_SEASONURL
+                                + "/"
+                                + latestSeason
+                                + LEADERBOARDEXTENSION_NA
+                                + "?page="
+                                + i),
+                        new TypeReference<ArrayList<GW2Account>>() {
+                        }));
+            }
+            return list;
         } catch (IOException e) {
             e.printStackTrace();
         }
