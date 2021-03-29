@@ -178,7 +178,7 @@ public class CommandHandler {
 
     public void topX(MessageChannel channel, String command) {
         int start = 0;
-        int end = 50;
+        int end = 250;
 
         try {
             String numbers = command.replace("!top", "").trim();
@@ -186,15 +186,15 @@ public class CommandHandler {
                 String[] split = numbers.split("-");
                 start = Integer.parseInt(split[0]) - 1;
                 end = Integer.parseInt(split[1]);
-                if (end > 50) end = 50;
+                if (end > 250) end = 250;
                 if (start < 0) start = 0;
-                if (start > 50) start = 50;
+                if (start > 250) start = 250;
                 if (end < 1) end = 1;
                 if (end < start) return;
             } else {
                 end = Integer.parseInt(numbers);
                 if (end <= start) end = 1;
-                if (end > 50) end = 50;
+                if (end > 250) end = 250;
             }
 
             StringBuilder sb = new StringBuilder();
