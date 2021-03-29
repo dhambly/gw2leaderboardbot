@@ -7,6 +7,17 @@ jar {
                 'Main-Class': 'Main'
         )
     }
+    from {
+        configurations
+                .compile
+                .findAll { !it.name.endsWith('pom') }
+                .collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+
+artifacts {
+    archives fatJar
 }
 
 group 'com.derickhambly'
