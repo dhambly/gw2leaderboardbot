@@ -1,3 +1,4 @@
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -10,11 +11,9 @@ import java.util.PriorityQueue;
 import static java.lang.String.*;
 
 public class CommandHandler {
-    private APIHandler api;
-    private AccountContainer accountContainer;
+    private final AccountContainer accountContainer;
 
-    CommandHandler(APIHandler api, AccountContainer accountContainer) {
-        this.api = api;
+    CommandHandler(AccountContainer accountContainer) {
         this.accountContainer = accountContainer;
     }
 
@@ -36,7 +35,9 @@ public class CommandHandler {
                 .append("!biggestloser\n")
                 .append("!addict\n")
                 .append("!top[X] or !top[X]-[Y]\n")
-                .append("!lookup [account]");
+                .append("!lookup [account]\n")
+                .append("!fallen\n")
+                .append("!shitter or !shitter [min games]");
         sendMessage(channel, sb.toString());
     }
 
@@ -104,8 +105,49 @@ public class CommandHandler {
 
     }
 
+    public void winrateShitter(MessageChannel channel, String wholemsg) {
+        String[] splitMsg = wholemsg.split(" ");
+        int minGames = 0;
+        if (splitMsg.length > 1) {
+            try {
+                minGames = Integer.parseInt(splitMsg[1]);
+            } catch (NumberFormatException e) {
+                System.err.println(e.toString());
+                sendMessage(channel, "put in numbers you fucking faggot");
+            }
+        }
+        //accountContainer.updateLeaderboard();
+        ArrayList<GW2Account> list = accountContainer.getAllAccounts();
+
+        //find the first account that fits
+        GW2Account loser = list.get(0);
+        int worstTotal = loser.getWins() + loser.getLosses();
+        double worstWinRate = (double) loser.getWins()/ worstTotal;
+        int counter = 1;
+        while (worstTotal < minGames) {
+            loser = list.get(counter++);
+            worstTotal = loser.getWins() + loser.getLosses();
+            worstWinRate = (double) loser.getWins() / worstTotal;
+        }
+
+        //find the best account that fits
+        for (GW2Account acc : list.subList(counter, list.size())) {
+            int totalGames = acc.getWins() + acc.getLosses();
+            double winRate = (double) acc.getWins()/ totalGames;
+            if (winRate < worstWinRate && totalGames > minGames) {
+                loser = acc;
+                worstWinRate = winRate;
+            }
+        }
+        String message = format("the most garbage player%s has to be %s with a win rate of %.3f over %d games (%d-%d)",
+                minGames > 0 ?" with " + minGames + " games": "",
+                loser.getName(), worstWinRate, loser.getWins() + loser.getLosses(), loser.getWins(), loser.getLosses());
+        sendMessage(channel, message);
+    }
+
     public void biggestLoser(MessageChannel channel) {
-        ArrayList<GW2Account> list = accountContainer.updateLeaderboard();
+        accountContainer.updateLeaderboard();
+        ArrayList<GW2Account> list = accountContainer.getAllAccounts();
         GW2Account loser = list.get(0);
         for (GW2Account acc : list.subList(1, list.size())) {
             if (acc.getLosses() > loser.getLosses()) {
@@ -210,10 +252,9 @@ public class CommandHandler {
             String intro = start == 0 ? format("Current Top %d:\n", end) : format("Current %d-%d:\n", start + 1, end);
             String formattedMessage = intro + sb.toString();
             sendMessage(channel, formattedMessage);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             System.err.println(e.toString());
-            sendMessage(channel, "message too long, try 30 or less total accounts");
-            return;
+            sendMessage(channel, "put in numbers you fucking faggot");
         }
     }
 

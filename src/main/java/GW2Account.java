@@ -28,7 +28,7 @@ public class GW2Account implements Serializable {
 
     public String reformattedToString() {
         return String.format(
-                "Rank %s%d: **%s**%s*%4d*  (%d-%d)",
+                "Rank %s%d: **%s**%s *%4d*  (%d-%d)",
                 getRank() >= 10 ? "" : " ",
                 getRank(),
                 getName(),

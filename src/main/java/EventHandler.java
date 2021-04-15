@@ -10,7 +10,7 @@ public class EventHandler extends ListenerAdapter {
 
     public EventHandler(APIHandler a) {
         this.api = a;
-        this.commands = new CommandHandler(api, new AccountContainer(api));
+        this.commands = new CommandHandler(new AccountContainer(api));
     }
 
     @Override
@@ -51,6 +51,8 @@ public class EventHandler extends ListenerAdapter {
             commands.getName(channel, message.split(" ",2)[1]);
         } else if (message.equalsIgnoreCase("!fallen")) {
             commands.lostAccounts(channel);
+        } else if (message.toLowerCase().startsWith("!shitter")) {
+            commands.winrateShitter(channel, message);
         }
     }
 }
