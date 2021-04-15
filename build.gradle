@@ -16,9 +16,6 @@ jar {
 }
 
 
-artifacts {
-    archives fatJar
-}
 
 group 'com.derickhambly'
 version '1.0-SNAPSHOT'

@@ -36,7 +36,8 @@ public class EventHandler extends ListenerAdapter {
             commands.biggestLoser(channel);
         } else if (message.equalsIgnoreCase("!addict")) {
             commands.gw2Addict(channel);
-        } else if (message.equalsIgnoreCase("!leaderboardcommands") || message.equalsIgnoreCase("!commands")) {
+        } else if (message.equalsIgnoreCase("!leaderboardcommands") || message.equalsIgnoreCase("!commands")
+        || message.equalsIgnoreCase("!help")) {
             commands.help(channel);
         } else if (message.equalsIgnoreCase("!kaypud")) {
             commands.kaypud(channel);
@@ -48,6 +49,8 @@ public class EventHandler extends ListenerAdapter {
             commands.topX(channel, message);
         } else if (message.toLowerCase().startsWith("!lookup")) {
             commands.getName(channel, message.split(" ",2)[1]);
+        } else if (message.equalsIgnoreCase("!fallen")) {
+            commands.lostAccounts(channel);
         }
     }
 }

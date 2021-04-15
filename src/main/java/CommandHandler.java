@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 
 import static java.lang.String.*;
 
@@ -18,6 +19,11 @@ public class CommandHandler {
     }
 
     public void sendMessage(MessageChannel channel, String msg) {
+        if (msg.length() >= 2000) {
+            String end = "\nMsg too long...";
+            msg = msg.substring(0, 2000 - (end.length() + 1));
+            msg += end;
+        }
         System.out.println(msg);
         channel.sendMessage(msg).queue();
     }
@@ -78,7 +84,7 @@ public class CommandHandler {
             }
         }
         if (counter > 0) {
-            String formattedMessage = (format("%d egirls in the top 50: \n%s", counter, sb.toString()));
+            String formattedMessage = (format("%d egirls in the top 250: \n%s", counter, sb.toString()));
             System.out.println(formattedMessage);
             channel.sendMessage(formattedMessage).queue();
         } else {
@@ -210,5 +216,29 @@ public class CommandHandler {
             return;
         }
     }
+
+    public void lostAccounts(MessageChannel channel) {
+        System.out.println("Trying to find lost accounts");
+        StringBuilder sb = new StringBuilder();
+        PriorityQueue<GW2Account> droppedAccounts = accountContainer.getDroppedAccounts();
+        int total = droppedAccounts.size();
+        sb.append("Here are the top currently tracked accounts off the leaderboard:\n");
+        for (int i = 0; i < 25; i++) {
+            GW2Account acc = droppedAccounts.poll();
+            String message = format("%s was last seen with rating *%d* (%d-%d) on %s",
+                    acc.getName(), acc.getRating(), acc.getWins(), acc.getLosses(), acc.getFormattedDate());
+            if (sb.length() + message.length() < 1980)
+                sb.append(message).append("\n");
+            else
+                break;
+        }
+        sb.append("Total: ").append(total);
+        try {
+            sendMessage(channel, sb.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }
