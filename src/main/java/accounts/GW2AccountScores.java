@@ -1,9 +1,11 @@
+package accounts;
+
 import java.io.Serializable;
 
 public class GW2AccountScores implements Serializable {
 
     private String id;
-    private int value;
+    private short value;
 
     public String getId() {
         return id;
@@ -13,11 +15,11 @@ public class GW2AccountScores implements Serializable {
         this.id = id;
     }
 
-    public int getValue() {
+    public short getValue() {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(short value) {
         this.value = value;
     }
 }

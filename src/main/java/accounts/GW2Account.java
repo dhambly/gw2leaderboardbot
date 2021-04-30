@@ -1,3 +1,5 @@
+package accounts;
+
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.io.Serializable;
@@ -10,10 +12,13 @@ public class GW2Account implements Serializable {
     private int rank;
     private String date;
     private GW2AccountScores[] scores;
-    private int rating;
-    private int wins;
-    private int losses;
+    private short rating;
+    private short wins;
+    private short losses;
+    private long time;
     private boolean onLeaderboard;
+    private int account_id;
+
 
     public String toString() {
         return String.format(
@@ -44,15 +49,17 @@ public class GW2Account implements Serializable {
     }
 
     public String getFormattedDate() {
-        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
         SimpleDateFormat output = new SimpleDateFormat("E yyyy/MM/dd 'at' hh:mm:ss a 'ET'");
-        try {
-            Date t = ft.parse(date);
-            t.setTime(t.getTime() - 1000 * 60 * 60 * 4);
-            return output.format(t);
-        } catch (ParseException e) {
-            return "????";
-        }
+        Date t = new Date(time);
+        return output.format(t);
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 
     private String generateWhiteSpace(int w) {
@@ -71,10 +78,10 @@ public class GW2Account implements Serializable {
     }
 
     //Parameter is the filename in src/main/accountsets directory containing list of accounts
+
     public boolean isA(String listName) {
         return AccountListHandler.accountIsA(this.getName(), listName);
     }
-
     public boolean isAChimp() {
         return AccountListHandler.isAChimp(name);
     }
@@ -93,6 +100,8 @@ public class GW2Account implements Serializable {
         this.wins = s[1].getValue();
         this.losses = s[2].getValue();
     }
+
+
 
     public String getName() {
         return name;
@@ -120,29 +129,35 @@ public class GW2Account implements Serializable {
 
     public void setDate(String date) {
         this.date = date;
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
+        try {
+            Date t = ft.parse(date);
+            t.setTime(t.getTime() - 1000 * 60 * 60 * 4);
+            this.time = t.getTime();
+        } catch (ParseException e) { e.printStackTrace();}
     }
 
-    public int getRating() {
+    public short getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(short rating) {
         this.rating = rating;
     }
 
-    public int getWins() {
+    public short getWins() {
         return wins;
     }
 
-    public void setWins(int wins) {
+    public void setWins(short wins) {
         this.wins = wins;
     }
 
-    public int getLosses() {
+    public short getLosses() {
         return losses;
     }
 
-    public void setLosses(int losses) {
+    public void setLosses(short losses) {
         this.losses = losses;
     }
 
@@ -152,6 +167,14 @@ public class GW2Account implements Serializable {
 
     public void setOnLeaderboard(boolean onLeaderboard) {
         this.onLeaderboard = onLeaderboard;
+    }
+
+    public int getAccount_id() {
+        return account_id;
+    }
+
+    public void setAccount_id(int account_id) {
+        this.account_id = account_id;
     }
 
 

@@ -1,18 +1,23 @@
-import java.io.*;
-import java.lang.reflect.Array;
+package accounts;
+
+import handlers.APIHandler;
+
 import java.util.*;
 
 public class AccountContainer {
     private ArrayList<GW2Account> currentLeaderboard;
-    private HashMap<String, GW2Account> allAccounts;
-    private HashSet<String> offLeaderboardAccountNames;
-    private APIHandler api;
+    private final HashMap<String, GW2Account> allAccounts;
+    private final HashSet<String> offLeaderboardAccountNames;
+    private final APIHandler api;
+    private final DatabaseHelper db;
 
-    public AccountContainer(APIHandler api) {
+
+    public AccountContainer(APIHandler api, DatabaseHelper databaseHelper) {
         this.api = api;
         this.offLeaderboardAccountNames = new HashSet<>();
         this.currentLeaderboard = api.getLeaderboard();
-        this.allAccounts = readAccountMapFile();
+        this.db = databaseHelper;
+        this.allAccounts = readAccountMapFromDB();
         HashSet<String> tempHash = new HashSet<>();
         for (GW2Account acc : currentLeaderboard) {
             if (!tempHash.contains(acc.getNameToLower())) {
@@ -22,9 +27,13 @@ public class AccountContainer {
         }
     }
 
+    public DatabaseHelper getDb() {
+        return db;
+    }
+
     public PriorityQueue<GW2Account> getDroppedAccounts() {
         PriorityQueue<GW2Account> accountPriorityQueue =
-                new PriorityQueue<>(50, (b,a) -> Integer.compare(a.getRating(), b.getRating()));
+                new PriorityQueue<>(50, (b, a) -> Integer.compare(a.getRating(), b.getRating()));
         for (String accountString : offLeaderboardAccountNames) {
             try {
                 accountPriorityQueue.add(allAccounts.get(accountString));
@@ -35,14 +44,23 @@ public class AccountContainer {
         return accountPriorityQueue;
     }
 
+    public ArrayList<GW2Account> getCurrentLeaderboard() {
+        return currentLeaderboard;
+    }
+
     public ArrayList<GW2Account> updateLeaderboard() {
         ArrayList<GW2Account> newLeaderboard = api.getLeaderboard();
         HashSet<String> newLeaderboardSet = new HashSet<>();
         for (GW2Account acc : newLeaderboard) {
             if (!newLeaderboardSet.contains(acc.getNameToLower())) {
                 newLeaderboardSet.add(acc.getNameToLower());
+                if (allAccounts.containsKey(acc.getNameToLower())) {
+                    acc.setAccount_id(allAccounts.get(acc.getNameToLower()).getAccount_id());
+                }
                 allAccounts.put(acc.getNameToLower(), acc);
                 offLeaderboardAccountNames.remove(acc.getNameToLower());
+            } else {
+                acc.setAccount_id(allAccounts.get(acc.getNameToLower()).getAccount_id());
             }
         }
         for (GW2Account acc : currentLeaderboard) {
@@ -53,41 +71,26 @@ public class AccountContainer {
             }
         }
         this.currentLeaderboard = newLeaderboard;
-        writeAccountMapToFile();
+        System.out.println("attempting write to db....");
+        db.writeAllAccountsToDB(this.currentLeaderboard);
         return this.currentLeaderboard;
     }
 
-    public void writeAccountMapToFile() {
-        try {
-            FileOutputStream fout = new FileOutputStream("accounts.gw2");
-            ObjectOutputStream oos = new ObjectOutputStream(fout);
-            oos.writeObject(this.allAccounts);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    private HashMap<String, GW2Account> readAccountMapFromDB() {
+        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB();
+        printHashMapOrderedByRank(map);
+        return checkForDrops(map);
     }
 
-    private HashMap readAccountMapFile() {
-        ObjectInputStream objectinputstream = null;
-        try {
-            FileInputStream streamIn = new FileInputStream("accounts.gw2");
-            objectinputstream = new ObjectInputStream(streamIn);
-            HashMap<String, GW2Account> readCase = (HashMap<String, GW2Account>) objectinputstream.readObject();
-            ArrayList<GW2Account> sortedList = new ArrayList<>(readCase.values());
-            sortedList.sort(Comparator.comparingInt(GW2Account::getRank));
-            StringBuilder sb = new StringBuilder("Loaded account list file with values: \n");
-            sortedList.forEach(acc -> sb.append(acc.toString()).append("\n"));
-            System.out.println(sb.toString());
-            return checkForDrops(readCase);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println("Cannot find account list file");
-        return new HashMap(1000);
+    private void printHashMapOrderedByRank(HashMap<String, GW2Account> readCase) {
+        ArrayList<GW2Account> sortedList = new ArrayList<>(readCase.values());
+        sortedList.sort(Comparator.comparingInt(GW2Account::getRank));
+        StringBuilder sb = new StringBuilder("Loaded account list from database with values: \n");
+        sortedList.forEach(acc -> sb.append(acc.toString()).append("\n"));
+        System.out.println(sb.toString());
     }
 
-    public HashMap checkForDrops(HashMap<String, GW2Account> map) {
+    public HashMap<String, GW2Account> checkForDrops(HashMap<String, GW2Account> map) {
         var leaderboardSet = new HashSet<String>();
         currentLeaderboard.forEach(acc -> leaderboardSet.add(acc.getNameToLower()));
 
@@ -99,8 +102,7 @@ public class AccountContainer {
                 acc.setOnLeaderboard(false);
                 acc.setRank(251);
             } else {
-                if (offLeaderboardAccountNames.contains(acc.getNameToLower()))
-                    offLeaderboardAccountNames.remove(acc.getNameToLower());
+                offLeaderboardAccountNames.remove(acc.getNameToLower());
                 if (!acc.isOnLeaderboard()) {
                     System.err.println("Theres something wrong, account off leaderboard after loading leaderboard");
                 }

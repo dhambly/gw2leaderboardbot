@@ -1,3 +1,6 @@
+package handlers;
+
+import accounts.GW2Account;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
