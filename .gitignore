@@ -7,3 +7,4 @@
 *.bin
 *.android_data_binding*.lock
 /config.properties
+/.idea/

@@ -27,6 +27,13 @@ public class GameHistory {
         ratingSnapshot.wins = wins;
         ratingSnapshot.losses = losses;
         ratingSnapshot.time = time;
-        ratingHistory.add(ratingSnapshot);
+        if (!ratingSnapshot.isSameScores(getLastRatingSnapshot()))
+            ratingHistory.add(ratingSnapshot);
+    }
+
+    public RatingSnapshot getLastRatingSnapshot() {
+        if (ratingHistory.size() > 0)
+            return ratingHistory.get(ratingHistory.size()-1);
+        else return null;
     }
 }

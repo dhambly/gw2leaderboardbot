@@ -334,7 +334,7 @@ public class CommandHandler {
         if (gameHistory == null) return;
         StringBuilder sb = new StringBuilder();
         sb.append("Heres what I have on ").append(acc.getName()).append(":\n");
-        DateFormat dateFormat = new SimpleDateFormat("MMM dd haa");
+        DateFormat dateFormat = new SimpleDateFormat("MMM d haa");
         for (RatingSnapshot rs : gameHistory.getRatingHistory()) {
             String time = dateFormat.format(new Date(rs.time.getTime() + (60 * 60 * 1000)));
             sb.append(time)
