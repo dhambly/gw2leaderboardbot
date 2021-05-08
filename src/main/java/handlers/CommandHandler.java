@@ -42,7 +42,9 @@ public class CommandHandler {
                 .append("!top[X] or !top[X]-[Y]\n")
                 .append("!lookup [account]\n")
                 .append("!fallen\n")
-                .append("!shitter or !shitter [min games]");
+                .append("!shitter or !shitter [min games]\n")
+                .append("!history [account]\n")
+                .append("!getrating [API-KEY]\n");
         sendMessage(channel, sb.toString());
     }
 
@@ -205,9 +207,10 @@ public class CommandHandler {
         priorityQueue.addAll(list);
         StringBuilder sb = new StringBuilder("GW2's worst no lifers are:\n");
         int initialSize = priorityQueue.size();
-        for (int i = 0; i < 10 && i < initialSize;i++) {
+        for (int i = 0; i < 10 && i < initialSize; i++) {
             GW2Account acc = priorityQueue.poll();
-            sb.append(acc.getName()).append(" with ").append(acc.getWins() + acc.getLosses()).append(" total games\n");
+            if (acc != null)
+                sb.append(acc.getName()).append(" with ").append(acc.getWins() + acc.getLosses()).append(" total games\n");
         }
         sendMessage(channel, sb.toString());
     }
@@ -247,16 +250,21 @@ public class CommandHandler {
     }
 
     public void getName(MessageChannel channel, String name) {
-        GW2Account lookup = accountContainer.getAccount(name.toLowerCase());
-        if (lookup != null) {
+        ArrayList<GW2Account> lookup = accountContainer.getAllMatchingAccounts(name.toLowerCase());
+        StringBuilder sb = new StringBuilder();
+        lookup.sort((a, b) -> Integer.compare(b.getRating(), a.getRating()));
+        for (GW2Account acc : lookup) {
             String message;
-            if (lookup.isOnLeaderboard()) {
-                message = lookup.reformattedToString();
+            if (acc.isOnLeaderboard()) {
+                message = acc.reformattedToString() + "\n";
             } else {
-                message = format("%s was last seen with rating *%d* (%d-%d) on %s",
-                        lookup.getName(), lookup.getRating(), lookup.getWins(), lookup.getLosses(), lookup.getFormattedDate());
+                message = format("%s was last seen with rating *%d* (%d-%d) on %s\n",
+                        acc.getName(), acc.getRating(), acc.getWins(), acc.getLosses(), acc.getFormattedDate());
             }
-            sendMessage(channel, message);
+            sb.append(message);
+        }
+        if (sb.length() > 0) {
+            sendMessage(channel, sb.toString());
         } else {
             sendMessage(channel, "Cannot find account");
         }
@@ -265,7 +273,7 @@ public class CommandHandler {
 
     public void topX(MessageChannel channel, String command) {
         int start = 0;
-        int end = 250;
+        int end;
 
         try {
             String numbers = command.replace("!top", "").trim();
@@ -303,7 +311,7 @@ public class CommandHandler {
         PriorityQueue<GW2Account> droppedAccounts = accountContainer.getDroppedAccounts();
         int total = droppedAccounts.size();
         sb.append("Here are the top currently tracked accounts off the leaderboard:\n");
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 25 && !droppedAccounts.isEmpty(); i++) {
             GW2Account acc = droppedAccounts.poll();
             String message = format("%s was last seen with rating *%d* (%d-%d) on %s",
                     acc.getName(), acc.getRating(), acc.getWins(), acc.getLosses(), acc.getFormattedDate());
@@ -355,6 +363,16 @@ public class CommandHandler {
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.HOURS));
         for (GW2Account acc : accountContainer.getAllAccounts()) {
             accountContainer.getDb().runScheduledRatingSnapshotUpdate(acc, timestamp);
+        }
+    }
+
+    public void getRatingFromAPIKey(MessageChannel channel, String key) {
+        int rating = accountContainer.getRatingFromAPIKey(key);
+        String name = accountContainer.getNameFromAPIKey(key);
+        if (rating < 0) {
+            sendMessage(channel, "invalid key");
+        } else {
+            sendMessage(channel, format("%s was found with rating %d", name, rating));
         }
     }
 

@@ -15,4 +15,11 @@ public class RatingSnapshot {
                 this.losses == b.losses;
     }
 
+    public boolean hasSameScoresAsAccount(GW2Account acc) {
+        return acc != null &&
+                this.rating == acc.getRating() &&
+                this.wins == acc.getWins() &&
+                this.losses == acc.getLosses();
+    }
+
 }

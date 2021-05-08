@@ -28,27 +28,60 @@ public class DatabaseHelper {
                 }
             }
             Connection connection = generateConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
-            System.out.printf("Inserting %s data into Rating_Snapshot table%n", acc.getName());
-            preparedStatement.setInt(1, id);
-            preparedStatement.setTimestamp(2, insertionTime);
-            preparedStatement.setShort(3, acc.getRating());
-            preparedStatement.setShort(4, acc.getWins());
-            preparedStatement.setShort(5, acc.getLosses());
-            int rs = preparedStatement.executeUpdate();
-            preparedStatement.close();
+            RatingSnapshot lastSnapshot = getLatestSnapshot(acc, connection);
+            if (!lastSnapshot.hasSameScoresAsAccount(acc)) {
+                PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
+                System.out.printf("Inserting %s data into Rating_Snapshot table%n", acc.getName());
+                preparedStatement.setInt(1, id);
+                preparedStatement.setTimestamp(2, insertionTime);
+                preparedStatement.setShort(3, acc.getRating());
+                preparedStatement.setShort(4, acc.getWins());
+                preparedStatement.setShort(5, acc.getLosses());
+                int rs = preparedStatement.executeUpdate();
+                preparedStatement.close();
+            }
             connection.close();
-
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    public int getIdForAccount(GW2Account account)  {
+    private RatingSnapshot getLatestSnapshot(GW2Account acc, Connection connection) {
+        RatingSnapshot ratingSnapshot = new RatingSnapshot();
+        int id = acc.getAccount_id();
+        if (acc.getAccount_id() == 0) {
+            id = getIdForAccount(acc);
+        }
+        if (id < 1) {
+            System.out.println("Failed to find id....");
+            return null;
+        }
+        try {
+            String query = "SELECT * FROM rating_snapshots WHERE id = " + acc.getAccount_id() + " ORDER BY time desc limit 1";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                ratingSnapshot.time = resultSet.getTimestamp("time");
+                ratingSnapshot.rating = resultSet.getShort("rating");
+                ratingSnapshot.wins = resultSet.getShort("wins");
+                ratingSnapshot.losses = resultSet.getShort("losses");
+
+            }
+            resultSet.close();
+            statement.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ratingSnapshot;
+    }
+
+    public int getIdForAccount(GW2Account account) {
         int id = -1;
         try {
             Connection connection = generateConnection();
-            String query = "SELECT * FROM accounts WHERE name = '" + account.getName() +"'";
+            String query = "SELECT * FROM accounts WHERE name = '" + account.getName() + "'";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
@@ -173,8 +206,7 @@ public class DatabaseHelper {
         String db_password = properties.getProperty("db_password");
         Class.forName(properties.getProperty("db_driver"));
 
-        Connection connection = DriverManager.getConnection(db_connection, db_user, db_password);
-        return connection;
+        return DriverManager.getConnection(db_connection, db_user, db_password);
     }
 
 }

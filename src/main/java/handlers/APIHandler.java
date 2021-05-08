@@ -1,6 +1,8 @@
 package handlers;
 
 import accounts.GW2Account;
+import accounts.apiobjects.GW2APIAccount;
+import accounts.apiobjects.SingleSeasonGW2Rating;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,6 +30,7 @@ public class APIHandler {
                 new URL(GW2API_SEASONURL),
                 LinkedList.class);
         latestSeason = seasonIDs.getLast();
+        System.out.println("Season ID:" + latestSeason);
     }
 
     public ArrayList<GW2Account> getLeaderboard() {
@@ -50,6 +53,48 @@ public class APIHandler {
             e.printStackTrace();
         }
         return new ArrayList<>();
+    }
+
+    public int getCurrentRatingFromAPIKey(String key) {
+        int rating = -1;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            ArrayList<SingleSeasonGW2Rating> list = new ArrayList<>(mapper.readValue(
+                    new URL(GW2_APIURL
+                            + "/pvp/standings"
+                            + "?access_token="
+                            + key),
+                    new TypeReference<ArrayList<SingleSeasonGW2Rating>>() {
+                    }));
+            for (SingleSeasonGW2Rating cur : list) {
+                if (cur.getSeason_id().equals(latestSeason)) {
+                    rating = cur.getCurrent().getRating();
+                    System.out.println(cur.getSeason_id());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rating;
+    }
+
+    public String getAccountNameFromAPIKey(String key) {
+        //https://api.guildwars2.com/v2/account?access_token=029A77EE-BEF0-9643-9BFA-BDD55733A2CCE15778C0-618E-4F78-8B5B-FC36D979D147
+        String name = "";
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            GW2APIAccount apiAccount = mapper.readValue(
+                    new URL(GW2_APIURL
+                            + "/account"
+                            + "?access_token="
+                            + key),
+                    new TypeReference<GW2APIAccount>() {
+                    });
+            name = apiAccount.getName();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return name;
     }
 
 }

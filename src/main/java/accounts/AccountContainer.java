@@ -112,8 +112,26 @@ public class AccountContainer {
         return map;
     }
 
+    public ArrayList<GW2Account> getAllMatchingAccounts(String name) {
+        if (allAccounts.containsKey(name.toLowerCase())) {
+            return (ArrayList<GW2Account>) Collections.singleton(allAccounts.get(name));
+        } else {
+            return hardSearchMultipleAccounts(name);
+        }
+    }
+
     public GW2Account getAccount(String name) {
         return allAccounts.getOrDefault(name.toLowerCase(), hardSearchAccount(name.toLowerCase()));
+    }
+
+    public ArrayList<GW2Account> hardSearchMultipleAccounts(String name) {
+        ArrayList<GW2Account> list = new ArrayList<>();
+        for (String fullName : allAccounts.keySet()) {
+            if (fullName.contains(name)) {
+                list.add(allAccounts.get(fullName));
+            }
+        }
+        return list;
     }
 
     public GW2Account hardSearchAccount(String name) {
@@ -134,4 +152,11 @@ public class AccountContainer {
         return new ArrayList<>(allAccounts.values());
     }
 
+    public int getRatingFromAPIKey(String key) {
+        return api.getCurrentRatingFromAPIKey(key);
+    }
+
+    public String getNameFromAPIKey(String key) {
+        return api.getAccountNameFromAPIKey(key);
+    }
 }
