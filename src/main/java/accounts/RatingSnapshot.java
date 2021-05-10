@@ -1,5 +1,7 @@
 package accounts;
 
+import accounts.apiobjects.GW2Account;
+
 import java.sql.Timestamp;
 
 public class RatingSnapshot {

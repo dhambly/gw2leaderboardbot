@@ -1,4 +1,6 @@
-package accounts;
+package accounts.apiobjects;
+
+import accounts.AccountListHandler;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;

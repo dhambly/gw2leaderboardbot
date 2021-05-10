@@ -1,7 +1,7 @@
 package handlers;
 
 import accounts.AccountContainer;
-import accounts.GW2Account;
+import accounts.apiobjects.GW2Account;
 import accounts.GameHistory;
 import accounts.RatingSnapshot;
 import net.dv8tion.jda.api.entities.MessageChannel;

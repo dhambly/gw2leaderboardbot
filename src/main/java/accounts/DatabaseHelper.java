@@ -1,8 +1,8 @@
 package accounts;
 
+import accounts.apiobjects.GW2Account;
+
 import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;

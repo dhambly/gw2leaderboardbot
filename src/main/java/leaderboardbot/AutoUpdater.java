@@ -2,11 +2,8 @@ package leaderboardbot;
 
 import accounts.AccountContainer;
 import accounts.DatabaseHelper;
-import accounts.GW2Account;
-import org.w3c.dom.CDATASection;
+import accounts.apiobjects.GW2Account;
 
-import javax.xml.crypto.Data;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;

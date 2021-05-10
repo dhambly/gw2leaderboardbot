@@ -1,6 +1,6 @@
 package handlers;
 
-import accounts.GW2Account;
+import accounts.apiobjects.GW2Account;
 import accounts.apiobjects.GW2APIAccount;
 import accounts.apiobjects.SingleSeasonGW2Rating;
 import com.fasterxml.jackson.core.type.TypeReference;

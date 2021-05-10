@@ -1,5 +1,6 @@
 package accounts;
 
+import accounts.apiobjects.GW2Account;
 import handlers.APIHandler;
 
 import java.util.*;

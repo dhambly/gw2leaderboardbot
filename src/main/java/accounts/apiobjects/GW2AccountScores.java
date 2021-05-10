@@ -1,4 +1,4 @@
-package accounts;
+package accounts.apiobjects;
 
 import java.io.Serializable;
 

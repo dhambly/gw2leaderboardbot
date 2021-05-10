@@ -1,7 +1,7 @@
 package accounts;
 
-import java.sql.Date;
-import java.sql.Time;
+import accounts.apiobjects.GW2Account;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 

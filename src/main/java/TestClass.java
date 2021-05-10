@@ -1,6 +1,6 @@
 import accounts.AccountContainer;
 import accounts.DatabaseHelper;
-import accounts.GW2Account;
+import accounts.apiobjects.GW2Account;
 import handlers.APIHandler;
 import org.junit.jupiter.api.Test;
 
