@@ -14,10 +14,12 @@ import java.util.concurrent.TimeUnit;
 
 public class AutoUpdater {
     AccountContainer accountContainer;
+    AccountContainer accountContainer_EU;
     DatabaseHelper databaseHelper;
 
-    AutoUpdater(AccountContainer accountContainer) {
+    AutoUpdater(AccountContainer accountContainer, AccountContainer accountContainer_EU) {
         this.accountContainer = accountContainer;
+        this.accountContainer_EU = accountContainer_EU;
         this.databaseHelper = accountContainer.getDb();
     }
 
@@ -25,6 +27,7 @@ public class AutoUpdater {
         ScheduledExecutorService apiCallSchedule = Executors.newSingleThreadScheduledExecutor();
         apiCallSchedule.scheduleAtFixedRate(() -> {
             accountContainer.updateLeaderboard();
+            accountContainer_EU.updateLeaderboard();
             System.out.println("Automatically updated leaderboard.");
         }, timeUntil5Mins(), 5*60*1000, TimeUnit.MILLISECONDS);
 
@@ -32,7 +35,10 @@ public class AutoUpdater {
         updateRatingSnapshotsSchedule.scheduleAtFixedRate(() -> {
             Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.HOURS));
             for (GW2Account acc : accountContainer.getAllAccounts()) {
-                databaseHelper.runScheduledRatingSnapshotUpdate(acc, timestamp);
+                databaseHelper.runScheduledRatingSnapshotUpdate(acc, timestamp, true);
+            }
+            for (GW2Account acc : accountContainer_EU.getAllAccounts()) {
+                databaseHelper.runScheduledRatingSnapshotUpdate(acc, timestamp, false);
             }
             System.out.println("Automatically updated leaderboard.");
         }, timeUntilTopOfHour(), 60*60*1000, TimeUnit.MILLISECONDS);

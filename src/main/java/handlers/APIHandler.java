@@ -33,7 +33,7 @@ public class APIHandler {
         System.out.println("Season ID:" + latestSeason);
     }
 
-    public ArrayList<GW2Account> getLeaderboard() {
+    public ArrayList<GW2Account> getLeaderboard(boolean isNA) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             ArrayList<GW2Account> list = new ArrayList<>();
@@ -42,7 +42,7 @@ public class APIHandler {
                         new URL(GW2API_SEASONURL
                                 + "/"
                                 + latestSeason
-                                + LEADERBOARDEXTENSION_NA
+                                + (isNA ? LEADERBOARDEXTENSION_NA : LEADERBOARDEXTENSION_EU)
                                 + "?page="
                                 + i),
                         new TypeReference<ArrayList<GW2Account>>() {

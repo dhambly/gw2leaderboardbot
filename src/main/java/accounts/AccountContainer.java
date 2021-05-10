@@ -11,12 +11,14 @@ public class AccountContainer {
     private final HashSet<String> offLeaderboardAccountNames;
     private final APIHandler api;
     private final DatabaseHelper db;
+    private final boolean isNA;
 
 
-    public AccountContainer(APIHandler api, DatabaseHelper databaseHelper) {
+    public AccountContainer(APIHandler api, DatabaseHelper databaseHelper, boolean isNA) {
         this.api = api;
         this.offLeaderboardAccountNames = new HashSet<>();
-        this.currentLeaderboard = api.getLeaderboard();
+        this.isNA = isNA;
+        this.currentLeaderboard = api.getLeaderboard(isNA);
         this.db = databaseHelper;
         this.allAccounts = readAccountMapFromDB();
         HashSet<String> tempHash = new HashSet<>();
@@ -50,7 +52,7 @@ public class AccountContainer {
     }
 
     public ArrayList<GW2Account> updateLeaderboard() {
-        ArrayList<GW2Account> newLeaderboard = api.getLeaderboard();
+        ArrayList<GW2Account> newLeaderboard = api.getLeaderboard(isNA);
         HashSet<String> newLeaderboardSet = new HashSet<>();
         for (GW2Account acc : newLeaderboard) {
             if (!newLeaderboardSet.contains(acc.getNameToLower())) {
@@ -73,12 +75,12 @@ public class AccountContainer {
         }
         this.currentLeaderboard = newLeaderboard;
         System.out.println("attempting write to db....");
-        db.writeAllAccountsToDB(this.currentLeaderboard);
+        db.writeAllAccountsToDB(this.currentLeaderboard, isNA);
         return this.currentLeaderboard;
     }
 
     private HashMap<String, GW2Account> readAccountMapFromDB() {
-        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB();
+        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB(isNA);
         printHashMapOrderedByRank(map);
         return checkForDrops(map);
     }

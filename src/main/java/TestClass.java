@@ -56,8 +56,8 @@ public class TestClass {
         prop.load(new FileInputStream("config.properties"));
         DatabaseHelper db = new DatabaseHelper(prop);
         APIHandler api = new APIHandler();
-        AccountContainer accountContainer = new AccountContainer(api, db);
-        db.writeAllAccountsToDB(accountContainer.getAllAccounts());
+        AccountContainer accountContainer = new AccountContainer(api, db, true);
+        db.writeAllAccountsToDB(accountContainer.getAllAccounts(), true);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class TestClass {
         Properties prop = new Properties();
         prop.load(new FileInputStream("config.properties"));
         DatabaseHelper db = new DatabaseHelper(prop);
-        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB();
+        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB(true);
         for (GW2Account account : map.values()) {
             System.out.println(account.reformattedToString());
         }

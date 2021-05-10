@@ -8,12 +8,12 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import java.io.IOException;
 
 public class EventHandler extends ListenerAdapter {
-    private APIHandler api;
-    private CommandHandler commands;
+    private final AccountContainer na_container;
+    private final AccountContainer eu_container;
 
-    public EventHandler(APIHandler a, AccountContainer accountContainer) {
-        this.api = a;
-        this.commands = new CommandHandler(accountContainer);
+    public EventHandler(AccountContainer na, AccountContainer eu) {
+        this.na_container = na;
+        this.eu_container = eu;
     }
 
     @Override
@@ -28,47 +28,56 @@ public class EventHandler extends ListenerAdapter {
 
     private void chooseCommand(MessageReceivedEvent event) throws IOException {
         try {
-            String message = event.getMessage().getContentDisplay();
             MessageChannel channel = event.getChannel();
+            String message = event.getMessage().getContentDisplay();
+            message = message.trim();
+            AccountContainer container = na_container;
+            boolean isNA = true;
+            if (message.startsWith("!eu")) {
+                message = "!" + message.substring(3);
+                container = eu_container;
+                isNA = false;
+            }
+            CommandHandler commands = new CommandHandler(container, channel, message);
             if (message.trim().equalsIgnoreCase("!chimpcheck")) {
-                commands.chimpCheck(channel);
+                commands.chimpCheck();
             } else if (message.equalsIgnoreCase("!topaddicts")) {
-                commands.topAddicts(channel);
+                commands.topAddicts();
             } else if (message.equalsIgnoreCase("!rankedegirls")) {
-                commands.listEgirlRanks(channel);
+                commands.listEgirlRanks();
             } else if (message.equalsIgnoreCase("!top10")) {
-                commands.listTop10(channel);
+                commands.listTop10();
             } else if (message.equalsIgnoreCase("!biggestloser") || message.equalsIgnoreCase("!loser")) {
-                commands.biggestLoser(channel);
+                commands.biggestLoser();
             } else if (message.equalsIgnoreCase("!addict")) {
-                commands.gw2Addict(channel);
+                commands.gw2Addict();
             } else if (message.equalsIgnoreCase("!leaderboardcommands") || message.equalsIgnoreCase("!commands")
                     || message.equalsIgnoreCase("!help")) {
-                commands.help(channel);
+                commands.help();
             } else if (message.equalsIgnoreCase("!kaypud")) {
-                commands.kaypud(channel);
+                commands.kaypud();
             } else if (message.equalsIgnoreCase("!moobs")) {
-                commands.checkmoobs(channel);
+                commands.checkmoobs();
             } else if (message.equalsIgnoreCase("!ari ebois")) {
-                commands.ariEbois(channel);
+                commands.ariEbois();
             } else if (message.toLowerCase().startsWith("!top")) {
-                commands.topX(channel, message);
+                commands.topX(message);
             } else if (message.toLowerCase().startsWith("!lookup")) {
-                commands.getName(channel, message.split(" ", 2)[1]);
+                commands.getName(message.split(" ", 2)[1]);
             } else if (message.equalsIgnoreCase("!fallen")) {
-                commands.lostAccounts(channel);
+                commands.lostAccounts();
             } else if (message.toLowerCase().startsWith("!shitter")) {
-                commands.winrateShitter(channel, message);
+                commands.winrateShitter(message);
             } else if (message.equalsIgnoreCase("!loraharem")) {
-                commands.loraHarem(channel);
+                commands.loraHarem();
             } else if (message.equalsIgnoreCase("calebswag") || message.equalsIgnoreCase("!calebswag")) {
-                commands.calebSwag(channel);
+                commands.calebSwag();
             } else if (message.startsWith("!history")) {
-                commands.historyLookup(channel, message.split(" ", 2)[1]);
+                commands.historyLookup(message.split(" ", 2)[1], isNA);
             } else if (message.equalsIgnoreCase("!forcehistoryupdate")) {
-                commands.forceHistoryUpdate();
+                commands.forceHistoryUpdate(isNA);
             } else if (message.toLowerCase().startsWith("!getrating")) {
-                commands.getRatingFromAPIKey(channel, message.split(" ", 2)[1]);
+                commands.getRatingFromAPIKey(message.split(" ", 2)[1]);
             }
         } catch (Exception e) {
             e.printStackTrace();

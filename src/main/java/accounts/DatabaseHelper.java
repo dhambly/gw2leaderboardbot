@@ -14,21 +14,22 @@ public class DatabaseHelper {
         this.properties = properties;
     }
 
-    public void runScheduledRatingSnapshotUpdate(GW2Account acc, Timestamp insertionTime) {
+    public void runScheduledRatingSnapshotUpdate(GW2Account acc, Timestamp insertionTime, boolean isNA) {
         try {
-            String insertOrUpdate = "INSERT INTO rating_snapshots " +
+            String insertOrUpdate = "INSERT INTO rating_snapshots" +
+                    (isNA ? " ":"_eu ") +
                     "(id, time, rating, wins, losses) " +
                     "VALUES (?,?,?,?,?)";
             int id = acc.getAccount_id();
             if (id == 0) {
-                id = getIdForAccount(acc);
+                id = getIdForAccount(acc, isNA);
                 if (id == -1) {
                     System.out.println("Skipping " + acc.getName() + " due to no matching ID");
                     return;
                 }
             }
             Connection connection = generateConnection();
-            RatingSnapshot lastSnapshot = getLatestSnapshot(acc, connection);
+            RatingSnapshot lastSnapshot = getLatestSnapshot(acc, connection, isNA);
             if (!lastSnapshot.hasSameScoresAsAccount(acc)) {
                 PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
                 System.out.printf("Inserting %s data into Rating_Snapshot table%n", acc.getName());
@@ -46,18 +47,20 @@ public class DatabaseHelper {
         }
     }
 
-    private RatingSnapshot getLatestSnapshot(GW2Account acc, Connection connection) {
+    private RatingSnapshot getLatestSnapshot(GW2Account acc, Connection connection, boolean isNA) {
         RatingSnapshot ratingSnapshot = new RatingSnapshot();
         int id = acc.getAccount_id();
         if (acc.getAccount_id() == 0) {
-            id = getIdForAccount(acc);
+            id = getIdForAccount(acc, isNA);
         }
         if (id < 1) {
             System.out.println("Failed to find id....");
             return null;
         }
         try {
-            String query = "SELECT * FROM rating_snapshots WHERE id = " + acc.getAccount_id() + " ORDER BY time desc limit 1";
+            String query = "SELECT * FROM rating_snapshots" +
+                    (isNA ? " ":"_eu ") +
+                    "WHERE id = " + acc.getAccount_id() + " ORDER BY time desc limit 1";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
@@ -77,11 +80,13 @@ public class DatabaseHelper {
         return ratingSnapshot;
     }
 
-    public int getIdForAccount(GW2Account account) {
+    public int getIdForAccount(GW2Account account, boolean isNA) {
         int id = -1;
         try {
             Connection connection = generateConnection();
-            String query = "SELECT * FROM accounts WHERE name = '" + account.getName() + "'";
+            String query = "SELECT * FROM accounts" +
+                    (isNA ? " ":"_eu ") +
+                    "WHERE name = '" + account.getName() + "'";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
@@ -98,11 +103,11 @@ public class DatabaseHelper {
         return id;
     }
 
-    public GameHistory loadGameHistory(GW2Account acc) {
+    public GameHistory loadGameHistory(GW2Account acc, boolean isNA) {
         GameHistory gameHistory = new GameHistory(acc);
         int id = acc.getAccount_id();
         if (acc.getAccount_id() == 0) {
-            id = getIdForAccount(acc);
+            id = getIdForAccount(acc, isNA);
         }
         if (id < 1) {
             System.out.println("Failed to find id....");
@@ -110,7 +115,9 @@ public class DatabaseHelper {
         }
         try {
             Connection connection = generateConnection();
-            String query = "SELECT * FROM rating_snapshots WHERE id = " + acc.getAccount_id() + " ORDER BY time asc";
+            String query = "SELECT * FROM rating_snapshots" +
+                    (isNA ? " ":"_eu ") +
+                    "WHERE id = " + acc.getAccount_id() + " ORDER BY time asc";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
@@ -131,12 +138,13 @@ public class DatabaseHelper {
         return gameHistory;
     }
 
-    public HashMap<String, GW2Account> loadRawAccountMapFromDB() {
+    public HashMap<String, GW2Account> loadRawAccountMapFromDB(boolean isNA) {
         HashMap<String, GW2Account> map = new HashMap<>(1000);
 
         try {
             Connection connection = generateConnection();
-            String query = "SELECT * FROM accounts";
+            String query = "SELECT * FROM accounts"+
+                    (isNA ? "":"_eu");
             GW2Account account;
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
@@ -167,9 +175,10 @@ public class DatabaseHelper {
         return map;
     }
 
-    public void writeAllAccountsToDB(ArrayList<GW2Account> gw2Accounts) {
+    public void writeAllAccountsToDB(ArrayList<GW2Account> gw2Accounts, boolean isNA) {
         try {
-            String insertOrUpdate = "INSERT INTO accounts " +
+            String insertOrUpdate = "INSERT INTO accounts" +
+                    (isNA ? " ":"_eu ") +
                     "(name,rating,wins,losses,onleaderboard,date) " +
                     "VALUES (?,?,?,?,?,?) " +
                     "ON DUPLICATE KEY UPDATE " +

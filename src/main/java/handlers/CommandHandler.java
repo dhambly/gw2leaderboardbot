@@ -17,12 +17,16 @@ import static java.lang.String.*;
 
 public class CommandHandler {
     private final AccountContainer accountContainer;
+    private final MessageChannel channel;
+//    private final String message;
 
-    CommandHandler(AccountContainer accountContainer) {
+    CommandHandler(AccountContainer accountContainer, MessageChannel channel, String message) {
         this.accountContainer = accountContainer;
+        this.channel = channel;
+//        this.message = message;
     }
 
-    public void sendMessage(MessageChannel channel, String msg) {
+    public void sendMessage(String msg) {
         if (msg.length() >= 2000) {
             String end = "\nMsg too long...";
             msg = msg.substring(0, 2000 - (end.length() + 1));
@@ -32,7 +36,7 @@ public class CommandHandler {
         channel.sendMessage(msg).queue();
     }
 
-    public void help(MessageChannel channel) {
+    public void help() {
         StringBuilder sb = new StringBuilder();
         sb.append("Current commands:\n").
                 append("!chimpcheck\n")
@@ -45,10 +49,10 @@ public class CommandHandler {
                 .append("!shitter or !shitter [min games]\n")
                 .append("!history [account]\n")
                 .append("!getrating [API-KEY]\n");
-        sendMessage(channel, sb.toString());
+        sendMessage(sb.toString());
     }
 
-    public void chimpCheck(MessageChannel channel) {
+    public void chimpCheck() {
         StringBuilder sb = new StringBuilder();
         int counter = 0;
         for (GW2Account acc : accountContainer.getCurrentLeaderboard()) {
@@ -59,13 +63,13 @@ public class CommandHandler {
         }
         if (counter > 0) {
             String formattedMessage = (format("%d Chimps Found: \n%s", counter, sb.toString()));
-            sendMessage(channel, formattedMessage);
+            sendMessage(formattedMessage);
         } else {
-            sendMessage(channel, "No chimps found!!!\ndid helio quit gw2....?");
+            sendMessage("No chimps found!!!\ndid helio quit gw2....?");
         }
     }
 
-    public void ariEbois(MessageChannel channel) {
+    public void ariEbois() {
         StringBuilder sb = new StringBuilder();
         int counter = 0;
         for (GW2Account acc : accountContainer.getCurrentLeaderboard()) {
@@ -76,13 +80,13 @@ public class CommandHandler {
         }
         if (counter > 0) {
             String formattedMessage = (format("%d of ari's ebois found: \n%s", counter, sb.toString()));
-            sendMessage(channel, formattedMessage);
+            sendMessage(formattedMessage);
         } else {
-            sendMessage(channel, "No ebois found... Time to look for some more ari");
+            sendMessage("No ebois found... Time to look for some more ari");
         }
     }
 
-    public void loraHarem(MessageChannel channel) {
+    public void loraHarem() {
         StringBuilder sb = new StringBuilder();
         int counter = 0;
         for (GW2Account acc : accountContainer.getCurrentLeaderboard()) {
@@ -93,13 +97,13 @@ public class CommandHandler {
         }
         if (counter > 0) {
             String formattedMessage = (format("%d of lora's harem members found: \n%s", counter, sb.toString()));
-            sendMessage(channel, formattedMessage);
+            sendMessage(formattedMessage);
         } else {
-            sendMessage(channel, "no one found... expand your harem lora");
+            sendMessage( "no one found... expand your harem lora");
         }
     }
 
-    public void listEgirlRanks(MessageChannel channel) {
+    public void listEgirlRanks() {
         StringBuilder sb = new StringBuilder();
         int counter = 0;
         for (GW2Account acc : accountContainer.getCurrentLeaderboard()) {
@@ -111,25 +115,25 @@ public class CommandHandler {
         if (counter > 0) {
             String formattedMessage = (format("%d egirls in the top 250: \n%s", counter, sb.toString()));
             System.out.println(formattedMessage);
-            channel.sendMessage(formattedMessage).queue();
+            sendMessage(formattedMessage);
         } else {
             System.out.println("No egirls found :(\nstep it up simps");
-            channel.sendMessage("No egirls found :(\nstep it up simps").queue();
+            sendMessage("No egirls found :(\nstep it up simps");
         }
 
     }
 
-    public void listTop10(MessageChannel channel) {
+    public void listTop10() {
         StringBuilder sb = new StringBuilder();
         for (GW2Account acc : accountContainer.getCurrentLeaderboard().subList(0, 10)) {
             sb.append(acc.reformattedToString()).append("\n");
         }
         String formattedMessage = (format("Current Top 10:\n%s", sb.toString()));
-        sendMessage(channel, formattedMessage);
+        sendMessage(formattedMessage);
 
     }
 
-    public void winrateShitter(MessageChannel channel, String wholemsg) {
+    public void winrateShitter(String wholemsg) {
         String[] splitMsg = wholemsg.split(" ");
         int minGames = 0;
         if (splitMsg.length > 1) {
@@ -137,7 +141,7 @@ public class CommandHandler {
                 minGames = Integer.parseInt(splitMsg[1]);
             } catch (NumberFormatException e) {
                 System.err.println(e.toString());
-                sendMessage(channel, "put in numbers you fucking faggot");
+                sendMessage("put in numbers you fucking faggot");
             }
         }
         ArrayList<GW2Account> list = accountContainer.getAllAccounts();
@@ -153,7 +157,7 @@ public class CommandHandler {
             worstWinRate = (double) loser.getWins() / worstTotal;
 
             if (counter == list.size()) {
-                sendMessage(channel, "Nobody has that many games. Just wait a sec for Arrant Stark.");
+                sendMessage("Nobody has that many games. Just wait a sec for Arrant Stark.");
                 return;
             }
         }
@@ -170,10 +174,10 @@ public class CommandHandler {
         String message = format("the most garbage player%s has to be %s with a win rate of %.3f over %d games (%d-%d)",
                 minGames > 0 ? " with " + minGames + " games" : "",
                 loser.getName(), worstWinRate, loser.getWins() + loser.getLosses(), loser.getWins(), loser.getLosses());
-        sendMessage(channel, message);
+        sendMessage(message);
     }
 
-    public void biggestLoser(MessageChannel channel) {
+    public void biggestLoser() {
         ArrayList<GW2Account> list = accountContainer.getAllAccounts();
         GW2Account loser = list.get(0);
         for (GW2Account acc : list.subList(1, list.size())) {
@@ -182,10 +186,10 @@ public class CommandHandler {
             }
         }
         String message = format("The biggest loser is %s with %d losses lmfao", loser.getName(), loser.getLosses());
-        sendMessage(channel, message);
+        sendMessage(message);
     }
 
-    public void gw2Addict(MessageChannel channel) {
+    public void gw2Addict() {
         ArrayList<GW2Account> list = accountContainer.getAllAccounts();
         GW2Account addict = list.get(0);
         int addictTotal = addict.getLosses() + addict.getWins();
@@ -197,10 +201,10 @@ public class CommandHandler {
             }
         }
         String message = format("GW2's worst no lifer is %s with a whopping %d total games", addict.getName(), addictTotal);
-        sendMessage(channel, message);
+        sendMessage(message);
     }
 
-    public void topAddicts(MessageChannel channel) {
+    public void topAddicts() {
         ArrayList<GW2Account> list = accountContainer.getAllAccounts();
         PriorityQueue<GW2Account> priorityQueue = new PriorityQueue<>((b, a)
                 -> Integer.compare(a.getWins() + a.getLosses(), b.getWins() + b.getLosses()));
@@ -212,10 +216,10 @@ public class CommandHandler {
             if (acc != null)
                 sb.append(acc.getName()).append(" with ").append(acc.getWins() + acc.getLosses()).append(" total games\n");
         }
-        sendMessage(channel, sb.toString());
+        sendMessage(sb.toString());
     }
 
-    public void kaypud(MessageChannel channel) {
+    public void kaypud() {
         GW2Account kaypud = null;
         for (GW2Account acc : accountContainer.getCurrentLeaderboard()) {
             if (acc.getName().toLowerCase().contains("kaypud")) {
@@ -226,12 +230,12 @@ public class CommandHandler {
         String message;
         if (kaypud != null) message = format("he's rank %d", kaypud.getRank());
         else message = "cant find him";
-        sendMessage(channel, message);
+        sendMessage(message);
     }
 
-    public void checkmoobs(MessageChannel channel) {
+    public void checkmoobs() {
         GW2Account moobs = null;
-        sendMessage(channel, "i promise you he's not on there but ill check");
+        sendMessage("i promise you he's not on there but ill check");
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
@@ -246,10 +250,10 @@ public class CommandHandler {
         String message;
         if (moobs != null) message = format("lmfao exposed he's rank %d", moobs.getRank());
         else message = "yeah he's not there";
-        sendMessage(channel, message);
+        sendMessage(message);
     }
 
-    public void getName(MessageChannel channel, String name) {
+    public void getName(String name) {
         ArrayList<GW2Account> lookup = accountContainer.getAllMatchingAccounts(name.toLowerCase());
         StringBuilder sb = new StringBuilder();
         lookup.sort((a, b) -> Integer.compare(b.getRating(), a.getRating()));
@@ -264,14 +268,14 @@ public class CommandHandler {
             sb.append(message);
         }
         if (sb.length() > 0) {
-            sendMessage(channel, sb.toString());
+            sendMessage(sb.toString());
         } else {
-            sendMessage(channel, "Cannot find account");
+            sendMessage("Cannot find account");
         }
 
     }
 
-    public void topX(MessageChannel channel, String command) {
+    public void topX(String command) {
         int start = 0;
         int end;
 
@@ -298,14 +302,14 @@ public class CommandHandler {
             }
             String intro = start == 0 ? format("Current Top %d:\n", end) : format("Current %d-%d:\n", start + 1, end);
             String formattedMessage = intro + sb.toString();
-            sendMessage(channel, formattedMessage);
+            sendMessage(formattedMessage);
         } catch (NumberFormatException e) {
             System.err.println(e.toString());
-            sendMessage(channel, "put in numbers you fucking faggot");
+            sendMessage("put in numbers you fucking faggot");
         }
     }
 
-    public void lostAccounts(MessageChannel channel) {
+    public void lostAccounts() {
         System.out.println("Trying to find lost accounts");
         StringBuilder sb = new StringBuilder();
         PriorityQueue<GW2Account> droppedAccounts = accountContainer.getDroppedAccounts();
@@ -322,23 +326,23 @@ public class CommandHandler {
         }
         sb.append("Total: ").append(total);
         try {
-            sendMessage(channel, sb.toString());
+            sendMessage(sb.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void calebSwag(MessageChannel channel) {
-        sendMessage(channel, "is a faggot");
+    public void calebSwag() {
+        sendMessage("is a faggot");
     }
 
-    public void historyLookup(MessageChannel channel, String name) {
+    public void historyLookup(String name, boolean isNA) {
         GW2Account acc = accountContainer.getAccount(name);
         if (acc == null) {
-            sendMessage(channel, "cannot find account");
+            sendMessage("cannot find account");
             return;
         }
-        GameHistory gameHistory = accountContainer.getDb().loadGameHistory(acc);
+        GameHistory gameHistory = accountContainer.getDb().loadGameHistory(acc, isNA);
         if (gameHistory == null) return;
         StringBuilder sb = new StringBuilder();
         sb.append("Heres what I have on ").append(acc.getName()).append(":\n");
@@ -355,24 +359,24 @@ public class CommandHandler {
                     .append(rs.losses)
                     .append(")\n");
         }
-        sendMessage(channel, sb.toString());
+        sendMessage(sb.toString());
     }
 
-    public void forceHistoryUpdate() {
+    public void forceHistoryUpdate(boolean isNA) {
         System.out.println("Attemping unscheduled insertion...");
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.HOURS));
         for (GW2Account acc : accountContainer.getAllAccounts()) {
-            accountContainer.getDb().runScheduledRatingSnapshotUpdate(acc, timestamp);
+            accountContainer.getDb().runScheduledRatingSnapshotUpdate(acc, timestamp, isNA);
         }
     }
 
-    public void getRatingFromAPIKey(MessageChannel channel, String key) {
+    public void getRatingFromAPIKey(String key) {
         int rating = accountContainer.getRatingFromAPIKey(key);
         String name = accountContainer.getNameFromAPIKey(key);
         if (rating < 0) {
-            sendMessage(channel, "invalid key");
+            sendMessage("invalid key");
         } else {
-            sendMessage(channel, format("%s was found with rating %d", name, rating));
+            sendMessage(format("%s was found with rating %d", name, rating));
         }
     }
 

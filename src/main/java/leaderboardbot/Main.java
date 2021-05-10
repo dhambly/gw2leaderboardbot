@@ -20,10 +20,11 @@ public class Main {
         String token = prop.getProperty("token");
         JDABuilder builder = JDABuilder.createDefault(token);
         APIHandler api = new APIHandler();
-        AccountContainer accountContainer = new AccountContainer(api, db);
-        builder.addEventListeners(new EventHandler(api, accountContainer));
+        AccountContainer accountContainerNA = new AccountContainer(api, db, true);
+        AccountContainer accountContainerEU = new AccountContainer(api, db, false);
+        builder.addEventListeners(new EventHandler(accountContainerNA, accountContainerEU));
         builder.build();
-        AutoUpdater autoUpdater = new AutoUpdater(accountContainer);
+        AutoUpdater autoUpdater = new AutoUpdater(accountContainerNA, accountContainerEU);
         autoUpdater.schedule();
         System.out.println("Currently running");
     }
