@@ -114,7 +114,7 @@ public class AccountContainer {
 
     public ArrayList<GW2Account> getAllMatchingAccounts(String name) {
         if (allAccounts.containsKey(name.toLowerCase())) {
-            return (ArrayList<GW2Account>) Collections.singleton(allAccounts.get(name));
+            return (ArrayList<GW2Account>) Collections.singletonList(allAccounts.get(name));
         } else {
             return hardSearchMultipleAccounts(name);
         }
