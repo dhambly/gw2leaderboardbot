@@ -381,4 +381,8 @@ public class CommandHandler {
     }
 
 
+    public void forceUpdate() {
+        accountContainer.updateLeaderboard();
+        sendMessage("updated.");
+    }
 }

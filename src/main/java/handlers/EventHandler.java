@@ -78,6 +78,8 @@ public class EventHandler extends ListenerAdapter {
                 commands.forceHistoryUpdate(isNA);
             } else if (message.toLowerCase().startsWith("!getrating")) {
                 commands.getRatingFromAPIKey(message.split(" ", 2)[1]);
+            } else if (message.equalsIgnoreCase("!forceupdate")) {
+                commands.forceUpdate();
             }
         } catch (Exception e) {
             e.printStackTrace();
