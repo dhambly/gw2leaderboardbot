@@ -51,7 +51,8 @@ public class CommandHandler {
                 .append("!history [account]\n")
                 .append("!getrating [API-KEY]\n")
                 .append("!rank [account]\n")
-                .append("!dailyhistory/!recenthistory/!hourlygraph [account]");
+                .append("!dailyhistory/!recenthistory/!hourlygraph [account]")
+                .append("!historygraph [account]");
         sendMessage(sb.toString());
     }
 
@@ -415,7 +416,7 @@ public class CommandHandler {
         GameHistory gameHistory = accountContainer.getDb().loadGameHistory(acc, isNA);
         if (gameHistory == null) return;
         String graph = GraphHandler.graphRatingHistory(gameHistory.generateDailyRatingHistory(), 72);
-        String msg = "Here's the fully daily history for " + acc.getName() + "\n";
+        String msg = "Here's the full daily history for " + acc.getName() + "\n";
         sendMessage(msg + "```" + graph + "```");
     }
 
