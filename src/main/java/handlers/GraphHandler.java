@@ -40,8 +40,8 @@ public class GraphHandler {
         graph += "     |     |     |     |    |\n";
         Instant curTime = Instant.now();
         Instant[] xAxis = new Instant[5];
-        for (int i = 4; i >= 0; i--) {
-            xAxis[i] = curTime.minus(i * 6L, ChronoUnit.HOURS);
+        for (int i = 4, j = 0; i >= 0; i--,j++) {
+            xAxis[i] = curTime.minus(j * 6L, ChronoUnit.HOURS);
         }
         xAxis[4] = curTime.minus(1, ChronoUnit.HOURS);
         StringBuilder timeLine = new StringBuilder(" ");
