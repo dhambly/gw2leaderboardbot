@@ -4,6 +4,7 @@ import accounts.AccountContainer;
 import accounts.apiobjects.GW2Account;
 import accounts.GameHistory;
 import accounts.RatingSnapshot;
+import com.mitchtalmadge.asciidata.graph.ASCIIGraph;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.sql.Timestamp;
@@ -48,7 +49,9 @@ public class CommandHandler {
                 .append("!fallen\n")
                 .append("!shitter or !shitter [min games]\n")
                 .append("!history [account]\n")
-                .append("!getrating [API-KEY]\n");
+                .append("!getrating [API-KEY]\n")
+                .append("!rank [account]\n")
+                .append("!dailyhistory/!recenthistory/!hourlygraph [account]");
         sendMessage(sb.toString());
     }
 
@@ -99,7 +102,7 @@ public class CommandHandler {
             String formattedMessage = (format("%d of lora's harem members found: \n%s", counter, sb.toString()));
             sendMessage(formattedMessage);
         } else {
-            sendMessage( "no one found... expand your harem lora");
+            sendMessage("no one found... expand your harem lora");
         }
     }
 
@@ -384,5 +387,49 @@ public class CommandHandler {
     public void forceUpdate() {
         accountContainer.updateLeaderboard();
         sendMessage("updated.");
+    }
+
+    public void getFromRank(String message) {
+        message = message.replace("!rank", "").trim();
+        try {
+            int rank = Integer.parseInt(message);
+            GW2Account cur = accountContainer.getCurrentLeaderboard().get(rank - 1);
+            sendMessage(cur.reformattedToString());
+        } catch (Exception e) {
+            sendMessage("use a proper number noob");
+        }
+    }
+
+    public void graphTest() {
+        String a = ASCIIGraph.fromSeries(new double[]{1.0, 2.0, 3.0}).plot();
+        sendMessage(a);
+        sendMessage("```" + a + "```");
+    }
+
+    public void graphHistory(String name, boolean isNA) {
+        GW2Account acc = accountContainer.getAccount(name);
+        if (acc == null) {
+            sendMessage("cannot find account");
+            return;
+        }
+        GameHistory gameHistory = accountContainer.getDb().loadGameHistory(acc, isNA);
+        if (gameHistory == null) return;
+        String graph = GraphHandler.graphRatingHistory(gameHistory.generateDailyRatingHistory(), 72);
+        String msg = "Here's the fully daily history for " + acc.getName() + "\n";
+        sendMessage(msg + "```" + graph + "```");
+    }
+
+    public void graphHourlyHistory(String name, boolean isNA) {
+        int MAX_SIZE = 24;
+        GW2Account acc = accountContainer.getAccount(name);
+        if (acc == null) {
+            sendMessage("cannot find account");
+            return;
+        }
+        GameHistory gameHistory = accountContainer.getDb().loadGameHistory(acc, isNA);
+        if (gameHistory == null) return;
+        String graph = GraphHandler.getFormattedHourlyGraph(gameHistory.generateHourlyRatingHistory());
+        String msg = "Here's the last " + MAX_SIZE + " hours of rating for " + acc.getName() + "\n";
+        sendMessage(msg + "```" + graph + "```");
     }
 }

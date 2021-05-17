@@ -33,6 +33,7 @@ public class AutoUpdater {
 
         ScheduledExecutorService updateRatingSnapshotsSchedule = Executors.newSingleThreadScheduledExecutor();
         updateRatingSnapshotsSchedule.scheduleAtFixedRate(() -> {
+            System.out.println("Attempting to write rating snapshots.");
             Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.HOURS));
             for (GW2Account acc : accountContainer.getAllAccounts()) {
                 databaseHelper.runScheduledRatingSnapshotUpdate(acc, timestamp, true);
@@ -40,7 +41,7 @@ public class AutoUpdater {
             for (GW2Account acc : accountContainer_EU.getAllAccounts()) {
                 databaseHelper.runScheduledRatingSnapshotUpdate(acc, timestamp, false);
             }
-            System.out.println("Automatically updated leaderboard.");
+
         }, timeUntilTopOfHour(), 60*60*1000, TimeUnit.MILLISECONDS);
 
     }

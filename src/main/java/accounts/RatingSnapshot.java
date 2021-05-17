@@ -24,4 +24,12 @@ public class RatingSnapshot {
                 this.losses == acc.getLosses();
     }
 
+    public RatingSnapshot clone() {
+        RatingSnapshot rs = new RatingSnapshot();
+        rs.rating = this.rating;
+        rs.wins = this.wins;
+        rs.losses = this.losses;
+        rs.time = this.time;
+        return rs;
+    }
 }

@@ -30,7 +30,7 @@ public class DatabaseHelper {
             }
             Connection connection = generateConnection();
             RatingSnapshot lastSnapshot = getLatestSnapshot(acc, connection, isNA);
-            if (!lastSnapshot.hasSameScoresAsAccount(acc)) {
+//            if (!lastSnapshot.hasSameScoresAsAccount(acc)) {
                 PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
                 System.out.printf("Inserting %s data into Rating_Snapshot table%n", acc.getName());
                 preparedStatement.setInt(1, id);
@@ -40,7 +40,7 @@ public class DatabaseHelper {
                 preparedStatement.setShort(5, acc.getLosses());
                 int rs = preparedStatement.executeUpdate();
                 preparedStatement.close();
-            }
+//            }
             connection.close();
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();

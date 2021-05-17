@@ -31,6 +31,7 @@ public class EventHandler extends ListenerAdapter {
             MessageChannel channel = event.getChannel();
             String message = event.getMessage().getContentDisplay();
             message = message.trim();
+            message = message.toLowerCase();
             AccountContainer container = na_container;
             boolean isNA = true;
             if (message.startsWith("!eu")) {
@@ -72,6 +73,8 @@ public class EventHandler extends ListenerAdapter {
                 commands.loraHarem();
             } else if (message.equalsIgnoreCase("calebswag") || message.equalsIgnoreCase("!calebswag")) {
                 commands.calebSwag();
+            } else if (message.startsWith("!historygraph") || message.startsWith("!graph")) {
+                commands.graphHistory(message.split(" ", 2)[1], isNA);
             } else if (message.startsWith("!history")) {
                 commands.historyLookup(message.split(" ", 2)[1], isNA);
             } else if (message.equalsIgnoreCase("!forcehistoryupdate")) {
@@ -80,6 +83,12 @@ public class EventHandler extends ListenerAdapter {
                 commands.getRatingFromAPIKey(message.split(" ", 2)[1]);
             } else if (message.equalsIgnoreCase("!forceupdate")) {
                 commands.forceUpdate();
+            } else if (message.toLowerCase().startsWith("!rank")) {
+                commands.getFromRank(message);
+            } else if (message.equalsIgnoreCase("!graphtest")) {
+                commands.graphTest();
+            } else if (message.startsWith("!hourlygraph") || message.startsWith("!dailyhistory") || message.startsWith("!recenthistory")) {
+                commands.graphHourlyHistory(message.split(" ", 2)[1], isNA);
             }
         } catch (Exception e) {
             e.printStackTrace();
