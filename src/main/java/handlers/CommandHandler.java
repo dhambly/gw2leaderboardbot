@@ -51,7 +51,7 @@ public class CommandHandler {
                 .append("!history [account]\n")
                 .append("!getrating [API-KEY]\n")
                 .append("!rank [account]\n")
-                .append("!dailyhistory/!recenthistory/!hourlygraph [account]")
+                .append("!dailyhistory/!recenthistory/!hourlygraph [account]\n")
                 .append("!historygraph [account]");
         sendMessage(sb.toString());
     }
