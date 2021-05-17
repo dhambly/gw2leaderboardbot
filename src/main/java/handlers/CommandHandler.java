@@ -50,8 +50,8 @@ public class CommandHandler {
                 .append("!shitter or !shitter [min games]\n")
                 .append("!history [account]\n")
                 .append("!getrating [API-KEY]\n")
-                .append("!rank [account]\n")
-                .append("!dailyhistory/!recenthistory/!hourlygraph [account]\n")
+                .append("!rank [X]\n")
+                .append("!dailyhistory/!hourlygraph [account]\n")
                 .append("!historygraph [account]");
         sendMessage(sb.toString());
     }
