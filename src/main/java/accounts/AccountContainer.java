@@ -76,6 +76,7 @@ public class AccountContainer {
         this.currentLeaderboard = newLeaderboard;
         System.out.println("attempting write to db....");
         db.writeAllAccountsToDB(this.currentLeaderboard, isNA);
+        System.out.println("finished write to db");
         return this.currentLeaderboard;
     }
 

@@ -32,7 +32,7 @@ public class DatabaseHelper {
             RatingSnapshot lastSnapshot = getLatestSnapshot(acc, connection, isNA);
 //            if (!lastSnapshot.hasSameScoresAsAccount(acc)) {
                 PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
-                System.out.printf("Inserting %s data into Rating_Snapshot table%n", acc.getName());
+//                System.out.printf("Inserting %s data into Rating_Snapshot table%n", acc.getName());
                 preparedStatement.setInt(1, id);
                 preparedStatement.setTimestamp(2, insertionTime);
                 preparedStatement.setShort(3, acc.getRating());
@@ -186,7 +186,7 @@ public class DatabaseHelper {
             Connection connection = generateConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
             for (GW2Account acc : gw2Accounts) {
-                System.out.printf("Inserting %s to DB%n", acc.getName());
+                //System.out.printf("Inserting %s to DB%n", acc.getName());
                 preparedStatement.setString(1, acc.getName());
                 preparedStatement.setShort(2, acc.getRating());
                 preparedStatement.setShort(3, acc.getWins());

@@ -28,7 +28,6 @@ public class EventHandler extends ListenerAdapter {
 
     private void chooseCommand(MessageReceivedEvent event) throws IOException {
         try {
-            MessageChannel channel = event.getChannel();
             String message = event.getMessage().getContentDisplay();
             message = message.trim();
             message = message.toLowerCase();
@@ -39,7 +38,7 @@ public class EventHandler extends ListenerAdapter {
                 container = eu_container;
                 isNA = false;
             }
-            CommandHandler commands = new CommandHandler(container, channel, message);
+            CommandHandler commands = new CommandHandler(container, event, isNA);
             if (message.trim().equalsIgnoreCase("!chimpcheck")) {
                 commands.chimpCheck();
             } else if (message.equalsIgnoreCase("!topaddicts")) {
@@ -74,11 +73,11 @@ public class EventHandler extends ListenerAdapter {
             } else if (message.equalsIgnoreCase("calebswag") || message.equalsIgnoreCase("!calebswag")) {
                 commands.calebSwag();
             } else if (message.startsWith("!historygraph") || message.startsWith("!graph")) {
-                commands.graphHistory(message.split(" ", 2)[1], isNA);
+                commands.graphHistory(message.split(" ", 2)[1]);
             } else if (message.startsWith("!history")) {
-                commands.historyLookup(message.split(" ", 2)[1], isNA);
+                commands.historyLookup(message.split(" ", 2)[1]);
             } else if (message.equalsIgnoreCase("!forcehistoryupdate")) {
-                commands.forceHistoryUpdate(isNA);
+                commands.forceHistoryUpdate();
             } else if (message.toLowerCase().startsWith("!getrating")) {
                 commands.getRatingFromAPIKey(message.split(" ", 2)[1]);
             } else if (message.equalsIgnoreCase("!forceupdate")) {
@@ -88,7 +87,9 @@ public class EventHandler extends ListenerAdapter {
             } else if (message.equalsIgnoreCase("!graphtest")) {
                 commands.graphTest();
             } else if (message.startsWith("!hourlygraph") || message.startsWith("!dailyhistory") || message.startsWith("!recenthistory")) {
-                commands.graphHourlyHistory(message.split(" ", 2)[1], isNA);
+                commands.graphHourlyHistory(message.split(" ", 2)[1]);
+            } else if (message.startsWith("!expose")) {
+                commands.addExposeTracker(event, message.split(" ", 2)[1]);
             }
         } catch (Exception e) {
             e.printStackTrace();

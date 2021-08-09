@@ -7,15 +7,17 @@ import accounts.apiobjects.GW2Account;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AutoUpdater {
-    AccountContainer accountContainer;
-    AccountContainer accountContainer_EU;
-    DatabaseHelper databaseHelper;
+    private final AccountContainer accountContainer;
+    private final AccountContainer accountContainer_EU;
+    private final DatabaseHelper databaseHelper;
+    private static final ArrayList<AccountTracker> trackers = new ArrayList<>();
 
     AutoUpdater(AccountContainer accountContainer, AccountContainer accountContainer_EU) {
         this.accountContainer = accountContainer;
@@ -28,8 +30,11 @@ public class AutoUpdater {
         apiCallSchedule.scheduleAtFixedRate(() -> {
             accountContainer.updateLeaderboard();
             accountContainer_EU.updateLeaderboard();
+            for (AccountTracker tracker : trackers) {
+                tracker.checkForUpdates(tracker.isNA()?accountContainer:accountContainer_EU);
+            }
             System.out.println("Automatically updated leaderboard.");
-        }, timeUntil5Mins(), 5*60*1000, TimeUnit.MILLISECONDS);
+        }, timeUntilNextMinute(), 60 * 1000, TimeUnit.MILLISECONDS);
 
         ScheduledExecutorService updateRatingSnapshotsSchedule = Executors.newSingleThreadScheduledExecutor();
         updateRatingSnapshotsSchedule.scheduleAtFixedRate(() -> {
@@ -46,6 +51,11 @@ public class AutoUpdater {
 
     }
 
+    private long timeUntilNextMinute() {
+        LocalDateTime nextStart = LocalDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.MINUTES);
+        return LocalDateTime.now().until(nextStart, ChronoUnit.MILLIS);
+    }
+
     private long timeUntil5Mins() {
         Calendar calendar = Calendar.getInstance();
         int minutes = calendar.get(Calendar.MINUTE);
@@ -59,5 +69,15 @@ public class AutoUpdater {
         return LocalDateTime.now().until(nextStart, ChronoUnit.MILLIS);
     }
 
+    public static void addTracker(AccountTracker tracker) {
+        trackers.add(tracker);
+    }
 
+    public static boolean removeTracker(AccountTracker tracker) {
+        return trackers.remove(tracker);
+    }
+
+    public static boolean removeTrackerByName(String name) {
+        return trackers.removeIf(at -> at.getAccountName().equalsIgnoreCase(name));
+    }
 }

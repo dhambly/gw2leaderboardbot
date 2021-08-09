@@ -5,7 +5,10 @@ import accounts.apiobjects.GW2Account;
 import accounts.GameHistory;
 import accounts.RatingSnapshot;
 import com.mitchtalmadge.asciidata.graph.ASCIIGraph;
+import leaderboardbot.AccountTracker;
+import leaderboardbot.AutoUpdater;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -19,11 +22,13 @@ import static java.lang.String.*;
 public class CommandHandler {
     private final AccountContainer accountContainer;
     private final MessageChannel channel;
+    private final boolean isNA;
 //    private final String message;
 
-    CommandHandler(AccountContainer accountContainer, MessageChannel channel, String message) {
+    CommandHandler(AccountContainer accountContainer, MessageReceivedEvent messageReceivedEvent, boolean isNA) {
         this.accountContainer = accountContainer;
-        this.channel = channel;
+        this.channel = messageReceivedEvent.getChannel();
+        this.isNA = isNA;
 //        this.message = message;
     }
 
@@ -52,7 +57,8 @@ public class CommandHandler {
                 .append("!getrating [API-KEY]\n")
                 .append("!rank [X]\n")
                 .append("!dailyhistory/!hourlygraph [account]\n")
-                .append("!historygraph [account]");
+                .append("!historygraph [account]\n")
+                .append("!expose [account]");
         sendMessage(sb.toString());
     }
 
@@ -340,7 +346,7 @@ public class CommandHandler {
         sendMessage("is a faggot");
     }
 
-    public void historyLookup(String name, boolean isNA) {
+    public void historyLookup(String name) {
         GW2Account acc = accountContainer.getAccount(name);
         if (acc == null) {
             sendMessage("cannot find account");
@@ -366,7 +372,7 @@ public class CommandHandler {
         sendMessage(sb.toString());
     }
 
-    public void forceHistoryUpdate(boolean isNA) {
+    public void forceHistoryUpdate() {
         System.out.println("Attemping unscheduled insertion...");
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.HOURS));
         for (GW2Account acc : accountContainer.getAllAccounts()) {
@@ -407,7 +413,7 @@ public class CommandHandler {
         sendMessage("```" + a + "```");
     }
 
-    public void graphHistory(String name, boolean isNA) {
+    public void graphHistory(String name) {
         GW2Account acc = accountContainer.getAccount(name);
         if (acc == null) {
             sendMessage("cannot find account");
@@ -420,7 +426,7 @@ public class CommandHandler {
         sendMessage(msg + "```" + graph + "```");
     }
 
-    public void graphHourlyHistory(String name, boolean isNA) {
+    public void graphHourlyHistory(String name) {
         int MAX_SIZE = 24;
         GW2Account acc = accountContainer.getAccount(name);
         if (acc == null) {
@@ -432,5 +438,16 @@ public class CommandHandler {
         String graph = GraphHandler.getFormattedHourlyGraph(gameHistory.generateHourlyRatingHistory());
         String msg = "Here's the last " + MAX_SIZE + " hours of rating for " + acc.getName() + "\n";
         sendMessage(msg + "```" + graph + "```");
+    }
+
+    public void addExposeTracker(MessageReceivedEvent messageReceivedEvent, String name) {
+        GW2Account acc = accountContainer.getAccount(name);
+        if (acc == null) {
+            sendMessage("cannot find account");
+            return;
+        }
+        AccountTracker tracker = new AccountTracker(messageReceivedEvent, acc, isNA);
+        AutoUpdater.addTracker(tracker);
+        sendMessage("now tracking " + acc.getName() + " for 24 hours");
     }
 }
