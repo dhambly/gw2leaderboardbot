@@ -90,6 +90,8 @@ public class EventHandler extends ListenerAdapter {
                 commands.graphHourlyHistory(message.split(" ", 2)[1]);
             } else if (message.startsWith("!expose")) {
                 commands.addExposeTracker(event, message.split(" ", 2)[1]);
+            } else if (message.equalsIgnoreCase("!buttbuddies")) {
+                commands.findButtBuddies();
             }
         } catch (Exception e) {
             e.printStackTrace();

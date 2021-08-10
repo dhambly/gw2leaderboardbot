@@ -49,16 +49,18 @@ public class CommandHandler {
                 .append("!rankedegirls\n")
                 .append("!biggestloser\n")
                 .append("!addict\n")
+                .append("!topaddicts")
                 .append("!top[X] or !top[X]-[Y]\n")
                 .append("!lookup [account]\n")
                 .append("!fallen\n")
                 .append("!shitter or !shitter [min games]\n")
-                .append("!history [account]\n")
                 .append("!getrating [API-KEY]\n")
                 .append("!rank [X]\n")
+                .append("!history [account]\n")
                 .append("!dailyhistory/!hourlygraph [account]\n")
                 .append("!historygraph [account]\n")
-                .append("!expose [account]");
+                .append("!expose [account]")
+                .append("!buttbuddies");
         sendMessage(sb.toString());
     }
 
@@ -449,5 +451,32 @@ public class CommandHandler {
         AccountTracker tracker = new AccountTracker(messageReceivedEvent, acc, isNA);
         AutoUpdater.addTracker(tracker);
         sendMessage("now tracking " + acc.getName() + " for 24 hours");
+    }
+
+    public void findButtBuddies() {
+        ArrayList<GW2Account> leaderboard = accountContainer.getCurrentLeaderboard();
+        ArrayList<List<GW2Account>> matches = new ArrayList<>();
+        GW2Account first = leaderboard.get(0);
+        GW2Account second;
+        for (int i = 1; i < leaderboard.size(); i++) {
+            second = leaderboard.get(i);
+            if (first.getRating() == second.getRating() &&
+                    first.getWins() == second.getWins() &&
+                    first.getLosses() == second.getLosses()) {
+                matches.add(Arrays.asList(first,second));
+            }
+            first = second;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (List<GW2Account> pairs : matches) {
+            sb.append("**")
+                    .append(pairs.get(0).getName())
+                    .append("** and **")
+                    .append(pairs.get(1).getName())
+                    .append("** are butt buddies at rank ")
+                    .append(pairs.get(0).getRank())
+                    .append(" having played all their games together :)\n");
+        }
+        sendMessage(sb.toString());
     }
 }
