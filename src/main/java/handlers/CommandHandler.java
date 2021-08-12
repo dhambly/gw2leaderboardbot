@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -478,5 +478,29 @@ public class CommandHandler {
                     .append(" having played all their games together :)\n");
         }
         sendMessage(sb.toString());
+    }
+
+    public void patchNotes() {
+        var eastern = ZoneId.of("America/New_York");
+        ZonedDateTime now = Instant.now().atZone(eastern);
+//        ZonedDateTime patchTime = ZonedDateTime
+        LocalTime patchTime = LocalTime.of(15,0);
+        LocalTime nowTime = LocalTime.now(eastern);
+        LocalDateTime nowDateTime = LocalDateTime.now(eastern);
+        LocalDate today = LocalDate.now(eastern);
+        LocalDateTime patchDateTime;
+        if (nowTime.isAfter(patchTime)) {
+            patchDateTime = LocalDateTime.of(today.plusDays(1), patchTime);
+        } else {
+            patchDateTime = LocalDateTime.of(today,patchTime);
+        }
+        long hours = nowDateTime.until(patchDateTime, ChronoUnit.HOURS);
+        long minutes = nowDateTime.until(patchDateTime, ChronoUnit.MINUTES)%60;
+        if (minutes < 59) minutes++;
+        if (hours > 0) {
+            sendMessage("the patch notes are in " + hours + " hours and " + minutes + " minutes i swear <:copium:838853217206796339>");
+        } else {
+            sendMessage("the patch notes are in " + minutes + " minute"+ (minutes > 1?"s":"")+" i swear <:copium:838853217206796339>");
+        }
     }
 }

@@ -92,6 +92,8 @@ public class EventHandler extends ListenerAdapter {
                 commands.addExposeTracker(event, message.split(" ", 2)[1]);
             } else if (message.equalsIgnoreCase("!buttbuddies")) {
                 commands.findButtBuddies();
+            } else if (message.equalsIgnoreCase("!patchnotes")) {
+                commands.patchNotes();
             }
         } catch (Exception e) {
             e.printStackTrace();
