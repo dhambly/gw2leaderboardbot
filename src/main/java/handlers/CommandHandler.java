@@ -498,7 +498,7 @@ public class CommandHandler {
         long minutes = nowDateTime.until(patchDateTime, ChronoUnit.MINUTES)%60;
         if (minutes < 59) minutes++;
         if (hours > 0) {
-            sendMessage("the patch notes are in " + hours + " hours and " + minutes + " minutes i swear <:copium:838853217206796339>");
+            sendMessage("the patch notes are in " + hours + " hour" + (hours > 1?"s":"")+ " and " + minutes + " minute"+ (minutes > 1?"s":"")+" i swear <:copium:838853217206796339>");
         } else {
             sendMessage("the patch notes are in " + minutes + " minute"+ (minutes > 1?"s":"")+" i swear <:copium:838853217206796339>");
         }
