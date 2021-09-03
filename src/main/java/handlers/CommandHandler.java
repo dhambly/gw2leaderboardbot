@@ -49,7 +49,7 @@ public class CommandHandler {
                 .append("!rankedegirls\n")
                 .append("!biggestloser\n")
                 .append("!addict\n")
-                .append("!topaddicts")
+                .append("!topaddicts\n")
                 .append("!top[X] or !top[X]-[Y]\n")
                 .append("!lookup [account]\n")
                 .append("!fallen\n")
@@ -59,7 +59,7 @@ public class CommandHandler {
                 .append("!history [account]\n")
                 .append("!dailyhistory/!hourlygraph [account]\n")
                 .append("!historygraph [account]\n")
-                .append("!expose [account]")
+                .append("!expose [account]\n")
                 .append("!buttbuddies");
         sendMessage(sb.toString());
     }
@@ -468,14 +468,18 @@ public class CommandHandler {
             first = second;
         }
         StringBuilder sb = new StringBuilder();
-        for (List<GW2Account> pairs : matches) {
-            sb.append("**")
-                    .append(pairs.get(0).getName())
-                    .append("** and **")
-                    .append(pairs.get(1).getName())
-                    .append("** are butt buddies at rank ")
-                    .append(pairs.get(0).getRank())
-                    .append(" having played all their games together :)\n");
+        if (matches.size() > 0) {
+            for (List<GW2Account> pairs : matches) {
+                sb.append("**")
+                        .append(pairs.get(0).getName())
+                        .append("** and **")
+                        .append(pairs.get(1).getName())
+                        .append("** are butt buddies at rank ")
+                        .append(pairs.get(0).getRank())
+                        .append(" having played all their games together :)\n");
+            }
+        } else {
+            sb.append("no buttbuddies could be found");
         }
         sendMessage(sb.toString());
     }
