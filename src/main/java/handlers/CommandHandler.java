@@ -507,4 +507,12 @@ public class CommandHandler {
             sendMessage("the patch notes are in " + minutes + " minute"+ (minutes > 1?"s":"")+" i swear <:copium:838853217206796339>");
         }
     }
+
+    public void steel() {
+        sendMessage("https://media.discordapp.net/attachments/396845083871412224/707081849465208872/steeldone.png");
+    }
+
+    public void fishing() {
+        sendMessage("\"bro omg did you get the new fish new to the poopoo pee pee vista\"\n \"no dude hop on my new gemstore skiff and lets go\"");
+    }
 }

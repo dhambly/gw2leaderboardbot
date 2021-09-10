@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.io.IOException;
+import java.util.Random;
 
 public class EventHandler extends ListenerAdapter {
     private final AccountContainer na_container;
@@ -24,6 +25,10 @@ public class EventHandler extends ListenerAdapter {
             System.out.println("Failed to connect to API");
             e.printStackTrace();
         }
+    }
+
+    public boolean isSteel(MessageReceivedEvent event) {
+        return event.getMessage().getAuthor().getName().toLowerCase().contains("steel");
     }
 
     private void chooseCommand(MessageReceivedEvent event) throws IOException {
@@ -94,6 +99,14 @@ public class EventHandler extends ListenerAdapter {
                 commands.findButtBuddies();
             } else if (message.equalsIgnoreCase("!patchnotes")) {
                 commands.patchNotes();
+            } else if (message.equalsIgnoreCase("!steel")
+            || (isSteel(event) && (message.contains("imagine") || message.contains("copium") || message.contains("cope") ||
+                    message.contains("naru") || message.contains("league") || message.contains("gw2") || message.contains("ranked") ||
+                    message.contains("legend") || message.contains("xpose") || message.contains("cry") || message.contains("grim"))
+                    || (new Random().nextDouble()) < .1)) { //10% chance of just doing it anyway lmfao
+                commands.steel();
+            } else if (message.equalsIgnoreCase("!fishing")) {
+                commands.fishing();
             }
         } catch (Exception e) {
             e.printStackTrace();
