@@ -28,6 +28,7 @@ public class EventHandler extends ListenerAdapter {
     }
 
     public boolean isSteel(MessageReceivedEvent event) {
+        System.out.println(event.getMessage().getAuthor().getName().toLowerCase());
         return event.getMessage().getAuthor().getName().toLowerCase().contains("steel");
     }
 
@@ -100,10 +101,10 @@ public class EventHandler extends ListenerAdapter {
             } else if (message.equalsIgnoreCase("!patchnotes")) {
                 commands.patchNotes();
             } else if (message.equalsIgnoreCase("!steel")
-            || (isSteel(event) && (message.contains("imagine") || message.contains("copium") || message.contains("cope") ||
+                    || (isSteel(event) && (message.contains("imagine") || message.contains("copium") || message.contains("cope") ||
                     message.contains("naru") || message.contains("league") || message.contains("gw2") || message.contains("ranked") ||
-                    message.contains("legend") || message.contains("xpose") || message.contains("cry") || message.contains("grim"))
-                    || (new Random().nextDouble()) < .1)) { //10% chance of just doing it anyway lmfao
+                    message.contains("legend") || message.contains("xpose") || message.contains("cry") || message.contains("grim")
+                    || (new Random().nextDouble()) < .1))) { //10% chance of just doing it anyway lmfao
                 commands.steel();
             } else if (message.equalsIgnoreCase("!fishing")) {
                 commands.fishing();
