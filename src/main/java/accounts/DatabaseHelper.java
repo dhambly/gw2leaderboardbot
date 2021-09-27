@@ -1,6 +1,7 @@
 package accounts;
 
 import accounts.apiobjects.GW2Account;
+import accounts.apiobjects.Season;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class DatabaseHelper {
     public void runScheduledRatingSnapshotUpdate(GW2Account acc, Timestamp insertionTime, boolean isNA) {
         try {
             String insertOrUpdate = "INSERT INTO rating_snapshots" +
-                    (isNA ? " ":"_eu ") +
+                    (isNA ? " " : "_eu ") +
                     "(id, time, rating, wins, losses) " +
                     "VALUES (?,?,?,?,?)";
             int id = acc.getAccount_id();
@@ -31,19 +32,40 @@ public class DatabaseHelper {
             Connection connection = generateConnection();
             RatingSnapshot lastSnapshot = getLatestSnapshot(acc, connection, isNA);
 //            if (!lastSnapshot.hasSameScoresAsAccount(acc)) {
-                PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
+            PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
 //                System.out.printf("Inserting %s data into Rating_Snapshot table%n", acc.getName());
-                preparedStatement.setInt(1, id);
-                preparedStatement.setTimestamp(2, insertionTime);
-                preparedStatement.setShort(3, acc.getRating());
-                preparedStatement.setShort(4, acc.getWins());
-                preparedStatement.setShort(5, acc.getLosses());
-                int rs = preparedStatement.executeUpdate();
-                preparedStatement.close();
+            preparedStatement.setInt(1, id);
+            preparedStatement.setTimestamp(2, insertionTime);
+            preparedStatement.setShort(3, acc.getRating());
+            preparedStatement.setShort(4, acc.getWins());
+            preparedStatement.setShort(5, acc.getLosses());
+            int rs = preparedStatement.executeUpdate();
+            preparedStatement.close();
 //            }
             connection.close();
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void setSeasonIDs(ArrayList<Season> seasons) {
+        try {
+            Connection connection = generateConnection();
+            for (Season season : seasons) {
+                String key = season.getKey();
+                String query = "SELECT id from season_lookup_table where" +
+                        "season_api_key = " + key;
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query);
+                if (resultSet.next()) {
+
+                } else {
+
+                }
+            }
+
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e);
         }
     }
 
@@ -59,7 +81,7 @@ public class DatabaseHelper {
         }
         try {
             String query = "SELECT * FROM rating_snapshots" +
-                    (isNA ? " ":"_eu ") +
+                    (isNA ? " " : "_eu ") +
                     "WHERE id = " + acc.getAccount_id() + " ORDER BY time desc limit 1";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
@@ -85,7 +107,7 @@ public class DatabaseHelper {
         try {
             Connection connection = generateConnection();
             String query = "SELECT * FROM accounts" +
-                    (isNA ? " ":"_eu ") +
+                    (isNA ? " " : "_eu ") +
                     "WHERE name = '" + account.getName() + "'";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
@@ -116,7 +138,7 @@ public class DatabaseHelper {
         try {
             Connection connection = generateConnection();
             String query = "SELECT * FROM rating_snapshots" +
-                    (isNA ? " ":"_eu ") +
+                    (isNA ? " " : "_eu ") +
                     "WHERE id = " + acc.getAccount_id() + " ORDER BY time asc";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
@@ -143,8 +165,8 @@ public class DatabaseHelper {
 
         try {
             Connection connection = generateConnection();
-            String query = "SELECT * FROM accounts"+
-                    (isNA ? "":"_eu");
+            String query = "SELECT * FROM accounts" +
+                    (isNA ? "" : "_eu");
             GW2Account account;
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
@@ -178,7 +200,7 @@ public class DatabaseHelper {
     public void writeAllAccountsToDB(ArrayList<GW2Account> gw2Accounts, boolean isNA) {
         try {
             String insertOrUpdate = "INSERT INTO accounts" +
-                    (isNA ? " ":"_eu ") +
+                    (isNA ? " " : "_eu ") +
                     "(name,rating,wins,losses,onleaderboard,date) " +
                     "VALUES (?,?,?,?,?,?) " +
                     "ON DUPLICATE KEY UPDATE " +

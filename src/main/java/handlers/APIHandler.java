@@ -2,8 +2,10 @@ package handlers;
 
 import accounts.apiobjects.GW2Account;
 import accounts.apiobjects.GW2APIAccount;
+import accounts.apiobjects.Season;
 import accounts.apiobjects.SingleSeasonGW2Rating;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -25,11 +27,24 @@ public class APIHandler {
     }
 
     private void initializeSeasons() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         seasonIDs = mapper.readValue(
                 new URL(GW2API_SEASONURL),
                 LinkedList.class);
+        ArrayList<Season> seasons = new ArrayList<>();
+        for (var seasonID : seasonIDs) {
+            String IDstr = seasonID.toString();
+            Season newSeason = mapper.readValue(
+                    new URL(GW2API_SEASONURL
+                    + "/"
+                    + latestSeason), Season.class);
+            seasons.add(newSeason);
+        }
+
+
         latestSeason = seasonIDs.getLast();
+
         System.out.println("Season ID:" + latestSeason);
     }
 
