@@ -57,7 +57,7 @@ public class AccountContainer {
     public ArrayList<GW2Account> updateLeaderboard() {
         Leaderboard newLeaderboards = api.getLeaderboard(isNA);
         ArrayList<GW2Account> newLeaderboardAccountList = api.getLeaderboard(isNA).getAccountList();
-        if (newLeaderboards.getSeason().getKey().equals(currentLeaderboard.getSeason().getKey())) {
+        if (!newLeaderboards.getSeason().getKey().equals(currentLeaderboard.getSeason().getKey())) {
             System.out.println("New season has been found");
             System.out.println(String.format("Swapping to season %s from season %s", newLeaderboards.getSeason().getName(), currentLeaderboard.getSeason().getName()));
             allAccounts = new HashMap<>();

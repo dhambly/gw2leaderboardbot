@@ -465,7 +465,7 @@ public class CommandHandler {
             if (first.getRating() == second.getRating() &&
                     first.getWins() == second.getWins() &&
                     first.getLosses() == second.getLosses()) {
-                matches.add(Arrays.asList(first,second));
+                matches.add(Arrays.asList(first, second));
             }
             first = second;
         }
@@ -490,7 +490,7 @@ public class CommandHandler {
         var eastern = ZoneId.of("America/New_York");
         ZonedDateTime now = Instant.now().atZone(eastern);
 //        ZonedDateTime patchTime = ZonedDateTime
-        LocalTime patchTime = LocalTime.of(15,0);
+        LocalTime patchTime = LocalTime.of(15, 0);
         LocalTime nowTime = LocalTime.now(eastern);
         LocalDateTime nowDateTime = LocalDateTime.now(eastern);
         LocalDate today = LocalDate.now(eastern);
@@ -498,15 +498,15 @@ public class CommandHandler {
         if (nowTime.isAfter(patchTime)) {
             patchDateTime = LocalDateTime.of(today.plusDays(1), patchTime);
         } else {
-            patchDateTime = LocalDateTime.of(today,patchTime);
+            patchDateTime = LocalDateTime.of(today, patchTime);
         }
         long hours = nowDateTime.until(patchDateTime, ChronoUnit.HOURS);
-        long minutes = nowDateTime.until(patchDateTime, ChronoUnit.MINUTES)%60;
+        long minutes = nowDateTime.until(patchDateTime, ChronoUnit.MINUTES) % 60;
         if (minutes < 59) minutes++;
         if (hours > 0) {
-            sendMessage("the patch notes are in " + hours + " hour" + (hours > 1?"s":"")+ " and " + minutes + " minute"+ (minutes > 1?"s":"")+" i swear <:copium:838853217206796339>");
+            sendMessage("the patch notes are in " + hours + " hour" + (hours > 1 ? "s" : "") + " and " + minutes + " minute" + (minutes > 1 ? "s" : "") + " i swear <:copium:838853217206796339>");
         } else {
-            sendMessage("the patch notes are in " + minutes + " minute"+ (minutes > 1?"s":"")+" i swear <:copium:838853217206796339>");
+            sendMessage("the patch notes are in " + minutes + " minute" + (minutes > 1 ? "s" : "") + " i swear <:copium:838853217206796339>");
         }
     }
 
@@ -533,6 +533,7 @@ public class CommandHandler {
         };
         defaultRandomCommand(messages, "!naru");
     }
+
     public void scrims() {
         String[] messages = {
                 "https://cdn.discordapp.com/attachments/845036889261998161/884643671050436678/nubu.jpg",
@@ -540,18 +541,21 @@ public class CommandHandler {
         };
         defaultRandomCommand(messages, "!scrims");
     }
+
     public void kat() {
         String message = "https://cdn.discordapp.com/attachments/652471470777171991/720784153326518302/kat.jpg";
         sendMessage(message);
     }
+
     public void zeromis() {
         String[] messages = {
-            "https://cdn.discordapp.com/attachments/845036889261998161/856663731076333588/614222c556f22ae7e658c08792b4fb0a.png",
+                "https://cdn.discordapp.com/attachments/845036889261998161/856663731076333588/614222c556f22ae7e658c08792b4fb0a.png",
                 "https://cdn.discordapp.com/attachments/652471470777171991/709568447994134568/xposeddd.png",
                 "https://cdn.discordapp.com/attachments/549358542566719534/564107639835852801/image0.png"
         };
         defaultRandomCommand(messages, "!zeromis");
     }
+
     public void shorts() {
         String[] messages = {
                 "https://c.tenor.com/avISvU9toQQAAAAC/make-wish.gif",
@@ -560,12 +564,14 @@ public class CommandHandler {
         };
         defaultRandomCommand(messages, "!shorts");
     }
+
     public void toker() {
         String[] messages = {
                 "https://cdn.discordapp.com/attachments/652471470777171991/720786952311275590/21om1g.png"
         };
         defaultRandomCommand(messages, "!toker");
     }
+
     public void nos() {
         String[] messages = {
                 "https://cdn.discordapp.com/attachments/845036889261998161/890647324475424779/unknown.png",
@@ -629,4 +635,20 @@ public class CommandHandler {
         sendMessage(msg.toString());
     }
 
+    public void zooseNutsJar() {
+        ArrayList<String> messages = accountContainer.getDb().getRandomMultiThing("zoosenuts");
+        StringBuilder sb = new StringBuilder();
+        sb.append("The current zoose nuts jar has ")
+                .append(messages.size())
+                .append(" nuts references, including:\n");
+        Random random = new Random();
+        for (int i = 0; i < 6 && messages.size() > 0; i++) {
+            int rand = random.nextInt(messages.size());
+            sb.append(messages.get(rand));
+            sb.append("\n");
+            messages.remove(rand);
+        }
+        sendMessage(sb.toString());
+
+    }
 }

@@ -139,4 +139,21 @@ public class TestClass {
         AccountContainer accountContainerNA = new AccountContainer(api, db, true);
         db.writeAllAccountsToDB(accountContainerNA.getCurrentLeaderboardObject(), true);
     }
+
+    @Test
+    void InsertRandomThing() throws IOException {
+        Properties prop = new Properties();
+        prop.load(new FileInputStream("config.properties"));
+        DatabaseHelper db = new DatabaseHelper(prop);
+        db.insertMultiRandomThing("deeznuts", "sdjfioasdjf");
+        db.insertMultiRandomThing("deeznuts", "sdjfisdfasdfoasdjf");
+    }
+
+    @Test
+    void getRandomMultiThing() throws IOException {
+        Properties prop = new Properties();
+        prop.load(new FileInputStream("config.properties"));
+        DatabaseHelper db = new DatabaseHelper(prop);
+        System.out.println(db.getRandomMultiThing("zoosenuts"));
+    }
 }

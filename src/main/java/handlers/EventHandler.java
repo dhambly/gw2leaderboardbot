@@ -44,6 +44,10 @@ public class EventHandler extends ListenerAdapter {
                 isNA = false;
             }
             CommandHandler commands = new CommandHandler(container, event, isNA);
+            if (event.getMessage().getAuthor().getName().toLowerCase().contains("zoose")
+                    && (message.contains("balls") || message.contains("nuts"))) {
+                container.getDb().insertMultiRandomThing("zoosenuts", event.getMessage().getContentDisplay());
+            }
             if (message.trim().equalsIgnoreCase("!chimpcheck")) {
                 commands.chimpCheck();
             } else if (message.equalsIgnoreCase("!topaddicts")) {
@@ -136,6 +140,8 @@ public class EventHandler extends ListenerAdapter {
                 commands.nemu();
             } else if (message.equalsIgnoreCase("!clearcomms")) {
                 commands.clearComms();
+            } else if (message.equalsIgnoreCase("!zoosenutsjar") || message.equalsIgnoreCase("!zooseballsjar")) {
+                commands.zooseNutsJar();
             }
         } catch (Exception e) {
             e.printStackTrace();
