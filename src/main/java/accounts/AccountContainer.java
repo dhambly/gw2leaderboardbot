@@ -1,17 +1,20 @@
 package accounts;
 
 import accounts.apiobjects.GW2Account;
+import accounts.apiobjects.Season;
 import handlers.APIHandler;
+import leaderboardbot.Leaderboard;
 
 import java.util.*;
 
 public class AccountContainer {
-    private ArrayList<GW2Account> currentLeaderboard;
-    private final HashMap<String, GW2Account> allAccounts;
-    private final HashSet<String> offLeaderboardAccountNames;
+    private Leaderboard currentLeaderboard;
+    private HashMap<String, GW2Account> allAccounts;
+    private HashSet<String> offLeaderboardAccountNames;
     private final APIHandler api;
     private final DatabaseHelper db;
     private final boolean isNA;
+
 
 
     public AccountContainer(APIHandler api, DatabaseHelper databaseHelper, boolean isNA) {
@@ -22,7 +25,7 @@ public class AccountContainer {
         this.db = databaseHelper;
         this.allAccounts = readAccountMapFromDB();
         HashSet<String> tempHash = new HashSet<>();
-        for (GW2Account acc : currentLeaderboard) {
+        for (GW2Account acc : currentLeaderboard.getAccountList()) {
             if (!tempHash.contains(acc.getNameToLower())) {
                 allAccounts.put(acc.getNameToLower(), acc);
                 tempHash.add(acc.getNameToLower());
@@ -48,40 +51,43 @@ public class AccountContainer {
     }
 
     public ArrayList<GW2Account> getCurrentLeaderboard() {
-        return currentLeaderboard;
+        return currentLeaderboard.getAccountList();
     }
 
     public ArrayList<GW2Account> updateLeaderboard() {
-        ArrayList<GW2Account> newLeaderboard = api.getLeaderboard(isNA);
+        Leaderboard newLeaderboards = api.getLeaderboard(isNA);
+        ArrayList<GW2Account> newLeaderboardAccountList = api.getLeaderboard(isNA).getAccountList();
+        if (newLeaderboards.getSeason().getKey().equals(currentLeaderboard.getSeason().getKey())) {
+            System.out.println("New season has been found");
+            System.out.println(String.format("Swapping to season %s from season %s", newLeaderboards.getSeason().getName(), currentLeaderboard.getSeason().getName()));
+            allAccounts = new HashMap<>();
+            offLeaderboardAccountNames = new HashSet<>();
+            currentLeaderboard.setAccountList(new ArrayList<>());
+        }
         HashSet<String> newLeaderboardSet = new HashSet<>();
-        for (GW2Account acc : newLeaderboard) {
+        for (GW2Account acc : newLeaderboardAccountList) {
             if (!newLeaderboardSet.contains(acc.getNameToLower())) {
                 newLeaderboardSet.add(acc.getNameToLower());
-                if (allAccounts.containsKey(acc.getNameToLower())) {
-                    acc.setAccount_id(allAccounts.get(acc.getNameToLower()).getAccount_id());
-                }
+
                 allAccounts.put(acc.getNameToLower(), acc);
                 offLeaderboardAccountNames.remove(acc.getNameToLower());
-            } else {
-                acc.setAccount_id(allAccounts.get(acc.getNameToLower()).getAccount_id());
             }
         }
-        for (GW2Account acc : currentLeaderboard) {
+        for (GW2Account acc : currentLeaderboard.getAccountList()) {
             if (!newLeaderboardSet.contains(acc.getNameToLower())) {
                 offLeaderboardAccountNames.add(acc.getNameToLower());
                 acc.setOnLeaderboard(false);
                 acc.setRank(251);
             }
         }
-        this.currentLeaderboard = newLeaderboard;
-        System.out.println("attempting write to db....");
+        this.currentLeaderboard = newLeaderboards;
+        this.currentLeaderboard.setAccountList(newLeaderboardAccountList);
         db.writeAllAccountsToDB(this.currentLeaderboard, isNA);
-        System.out.println("finished write to db");
-        return this.currentLeaderboard;
+        return this.currentLeaderboard.getAccountList();
     }
 
     private HashMap<String, GW2Account> readAccountMapFromDB() {
-        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB(isNA);
+        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB(isNA, currentLeaderboard.getSeason());
         printHashMapOrderedByRank(map);
         return checkForDrops(map);
     }
@@ -96,9 +102,9 @@ public class AccountContainer {
 
     public HashMap<String, GW2Account> checkForDrops(HashMap<String, GW2Account> map) {
         var leaderboardSet = new HashSet<String>();
-        currentLeaderboard.forEach(acc -> leaderboardSet.add(acc.getNameToLower()));
+        currentLeaderboard.getAccountList().forEach(acc -> leaderboardSet.add(acc.getNameToLower()));
 
-        System.out.println(currentLeaderboard.size());
+        System.out.println(currentLeaderboard.getAccountList().size());
         for (GW2Account acc : map.values()) {
             if (!leaderboardSet.contains(acc.getNameToLower())) {
                 System.out.println("Found someone off leaderboard while loading " + acc.getName());
@@ -163,4 +169,13 @@ public class AccountContainer {
     public String getNameFromAPIKey(String key) {
         return api.getAccountNameFromAPIKey(key);
     }
+
+    public APIHandler getApi() {
+        return api;
+    }
+
+    public Leaderboard getCurrentLeaderboardObject() {
+        return this.currentLeaderboard;
+    }
+
 }

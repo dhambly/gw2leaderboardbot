@@ -2,9 +2,12 @@ package handlers;
 
 import accounts.apiobjects.GW2Account;
 import accounts.apiobjects.GW2APIAccount;
+import accounts.apiobjects.Season;
 import accounts.apiobjects.SingleSeasonGW2Rating;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import leaderboardbot.Leaderboard;
 
 import java.io.IOException;
 import java.net.URL;
@@ -18,22 +21,44 @@ public class APIHandler {
     private static final String LEADERBOARDEXTENSION_NA = "/leaderboards/ladder/na";
     private static final String LEADERBOARDEXTENSION_EU = "/leaderboards/ladder/eu";
     private LinkedList seasonIDs;
-    private Object latestSeason;
+    private Season latestSeason;
+
+    private ArrayList<Season> seasons;
 
     public APIHandler() throws IOException {
         initializeSeasons();
     }
 
     private void initializeSeasons() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         seasonIDs = mapper.readValue(
                 new URL(GW2API_SEASONURL),
                 LinkedList.class);
-        latestSeason = seasonIDs.getLast();
-        System.out.println("Season ID:" + latestSeason);
+        seasons = new ArrayList<>();
+        for (var seasonID : seasonIDs) {
+            String IDstr = seasonID.toString();
+            Season newSeason = mapper.readValue(
+                    new URL(GW2API_SEASONURL
+                            + "/"
+                            + IDstr), Season.class);
+            seasons.add(newSeason);
+        }
+
+        latestSeason = seasons.get(seasons.size() - 1);
+        System.out.println("Season ID:" + latestSeason.getKey());
     }
 
-    public ArrayList<GW2Account> getLeaderboard(boolean isNA) {
+    public void reinitializeSeasons() {
+        try {
+            initializeSeasons();
+        } catch (IOException e) {
+            System.out.println("Failed to re-load season keys");
+            e.printStackTrace();
+        }
+    }
+
+    public Leaderboard getLeaderboard(boolean isNA) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             ArrayList<GW2Account> list = new ArrayList<>();
@@ -41,18 +66,19 @@ public class APIHandler {
                 list.addAll(mapper.readValue(
                         new URL(GW2API_SEASONURL
                                 + "/"
-                                + latestSeason
+                                + latestSeason.getKey()
                                 + (isNA ? LEADERBOARDEXTENSION_NA : LEADERBOARDEXTENSION_EU)
                                 + "?page="
                                 + i),
                         new TypeReference<ArrayList<GW2Account>>() {
                         }));
             }
-            return list;
+            list.forEach(a -> a.setSeason(latestSeason));
+            return new Leaderboard(latestSeason, list);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new ArrayList<>();
+        return new Leaderboard(latestSeason, new ArrayList<>());
     }
 
     public int getCurrentRatingFromAPIKey(String key) {
@@ -67,7 +93,7 @@ public class APIHandler {
                     new TypeReference<ArrayList<SingleSeasonGW2Rating>>() {
                     }));
             for (SingleSeasonGW2Rating cur : list) {
-                if (cur.getSeason_id().equals(latestSeason)) {
+                if (cur.getSeason_id().equals(latestSeason.getKey())) {
                     rating = cur.getCurrent().getRating();
                     System.out.println(cur.getSeason_id());
                 }
@@ -97,4 +123,11 @@ public class APIHandler {
         return name;
     }
 
+    public ArrayList<Season> getSeasons() {
+        return seasons;
+    }
+
+    public Season getLatestSeason() {
+        return latestSeason;
+    }
 }

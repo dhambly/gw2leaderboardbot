@@ -28,7 +28,6 @@ public class EventHandler extends ListenerAdapter {
     }
 
     public boolean isSteel(MessageReceivedEvent event) {
-        System.out.println(event.getMessage().getAuthor().getName().toLowerCase());
         return event.getMessage().getAuthor().getName().toLowerCase().contains("steel");
     }
 
@@ -100,14 +99,43 @@ public class EventHandler extends ListenerAdapter {
                 commands.findButtBuddies();
             } else if (message.equalsIgnoreCase("!patchnotes")) {
                 commands.patchNotes();
-            } else if (message.equalsIgnoreCase("!steel")
-                    || (isSteel(event) && (message.contains("imagine") || message.contains("copium") || message.contains("cope") ||
-                    message.contains("naru") || message.contains("league") || message.contains("gw2") || message.contains("ranked") ||
-                    message.contains("legend") || message.contains("xpose") || message.contains("cry") || message.contains("grim")
-                    || (new Random().nextDouble()) < .1))) { //10% chance of just doing it anyway lmfao
+            } else if (message.startsWith("!steel")
+                    || (isSteel(event) && (message.contains("copium") || message.contains("cope") ||
+                    message.contains("xpose")
+                    || (new Random().nextDouble()) < .01))) { //1% chance of just doing it anyway lmfao
                 commands.steel();
             } else if (message.equalsIgnoreCase("!fishing")) {
                 commands.fishing();
+            } else if (message.startsWith("!naru") || message.startsWith("!nubu")) {
+                int num;
+                try {
+                    num = Integer.parseInt(message.substring(5).trim());
+                } catch (Exception e) {
+                    num = -1;
+                }
+                commands.naru(num);
+            } else if (message.startsWith("!scrims") || message.startsWith("!inhouses")) {
+                commands.scrims();
+            } else if (message.startsWith("!kat")) {
+                commands.kat();
+            } else if (message.startsWith("!zeromis")) {
+                commands.zeromis();
+            } else if (message.startsWith("!shorts")) {
+                commands.shorts();
+            } else if (message.startsWith("!toker")) {
+                commands.toker();
+            } else if (message.startsWith("!nos")) {
+                commands.nos();
+            } else if (message.startsWith("!helio")) {
+                commands.helio();
+            } else if (message.startsWith("!mark")) {
+                commands.mark();
+            } else if (message.startsWith("!grim")) {
+                commands.grim();
+            } else if (message.startsWith("!nemu")) {
+                commands.nemu();
+            } else if (message.equalsIgnoreCase("!clearcomms")) {
+                commands.clearComms();
             }
         } catch (Exception e) {
             e.printStackTrace();

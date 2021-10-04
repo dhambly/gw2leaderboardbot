@@ -23,12 +23,14 @@ public class CommandHandler {
     private final AccountContainer accountContainer;
     private final MessageChannel channel;
     private final boolean isNA;
+    private final String message;
 //    private final String message;
 
     CommandHandler(AccountContainer accountContainer, MessageReceivedEvent messageReceivedEvent, boolean isNA) {
         this.accountContainer = accountContainer;
         this.channel = messageReceivedEvent.getChannel();
         this.isNA = isNA;
+        this.message = messageReceivedEvent.getMessage().getContentDisplay();
 //        this.message = message;
     }
 
@@ -509,10 +511,122 @@ public class CommandHandler {
     }
 
     public void steel() {
-        sendMessage("https://media.discordapp.net/attachments/396845083871412224/707081849465208872/steeldone.png");
+        String[] messages = {
+                "https://cdn.discordapp.com/attachments/845036889261998161/889714889600405534/image0.jpg",
+                "https://media.discordapp.net/attachments/396845083871412224/707081849465208872/steeldone.png"
+        };
+        defaultRandomCommand(messages, "!steel");
     }
 
     public void fishing() {
+
         sendMessage("\"bro omg did you get the new fish new to the poopoo pee pee vista\"\n \"no dude hop on my new gemstore skiff and lets go\"");
     }
+
+    public void naru(int num) {
+        String[] messages = {
+                "https://cdn.discordapp.com/attachments/845036889261998161/889552546732081172/image0.png",
+                "https://cdn.discordapp.com/attachments/845036889261998161/889715315724922900/Screenshot_140.png",
+                "https://cdn.discordapp.com/attachments/845036889261998161/851881734030229534/Snapchat-1130386685.jpg",
+                "https://cdn.discordapp.com/attachments/845036889261998161/890647065821069392/b200058f505f697f4106d8a40e2c49f8.png",
+                "https://cdn.discordapp.com/attachments/845036889261998161/890650001024380999/image0.png"
+        };
+        defaultRandomCommand(messages, "!naru");
+    }
+    public void scrims() {
+        String[] messages = {
+                "https://cdn.discordapp.com/attachments/845036889261998161/884643671050436678/nubu.jpg",
+                "https://cdn.discordapp.com/attachments/549358542566719534/558385420539527229/image0.png"
+        };
+        defaultRandomCommand(messages, "!scrims");
+    }
+    public void kat() {
+        String message = "https://cdn.discordapp.com/attachments/652471470777171991/720784153326518302/kat.jpg";
+        sendMessage(message);
+    }
+    public void zeromis() {
+        String[] messages = {
+            "https://cdn.discordapp.com/attachments/845036889261998161/856663731076333588/614222c556f22ae7e658c08792b4fb0a.png",
+                "https://cdn.discordapp.com/attachments/652471470777171991/709568447994134568/xposeddd.png",
+                "https://cdn.discordapp.com/attachments/549358542566719534/564107639835852801/image0.png"
+        };
+        defaultRandomCommand(messages, "!zeromis");
+    }
+    public void shorts() {
+        String[] messages = {
+                "https://c.tenor.com/avISvU9toQQAAAAC/make-wish.gif",
+                "https://cdn.discordapp.com/attachments/845036889261998161/890653620226367518/17a801ee2ddcee63b747356cab85d0eb-png.jpg",
+                "https://cdn.discordapp.com/attachments/845036889261998161/890671314820550736/image0.jpg"
+        };
+        defaultRandomCommand(messages, "!shorts");
+    }
+    public void toker() {
+        String[] messages = {
+                "https://cdn.discordapp.com/attachments/652471470777171991/720786952311275590/21om1g.png"
+        };
+        defaultRandomCommand(messages, "!toker");
+    }
+    public void nos() {
+        String[] messages = {
+                "https://cdn.discordapp.com/attachments/845036889261998161/890647324475424779/unknown.png",
+                "https://cdn.discordapp.com/attachments/845036889261998161/890647617812435085/unknown.png"
+        };
+        defaultRandomCommand(messages, "!nos");
+    }
+
+    public void helio() {
+        String[] messages = {
+                "https://cdn.discordapp.com/attachments/845036889261998161/890650527891881994/unknown.png",
+                "https://media.discordapp.net/attachments/584530187715346479/796606521941295114/nemuhelio2.png",
+                "https://cdn.discordapp.com/attachments/845036889261998161/890653890893213706/collage_1.jpg"
+        };
+        defaultRandomCommand(messages, "!helio");
+    }
+
+    public void mark() {
+        String[] messages = {
+                "https://www.youtube.com/watch?v=keO9LqzCgU4",
+                "https://cdn.discordapp.com/attachments/845036889261998161/890653906865094726/unknown-20.png"
+        };
+        defaultRandomCommand(messages, "!mark");
+    }
+
+    public void grim() {
+        String[] messages = {
+                "https://cdn.discordapp.com/attachments/690985565746757642/890654816659963904/image0.png"
+        };
+        defaultRandomCommand(messages, "!grim");
+    }
+
+    public void nemu() {
+        String[] messages = {
+                "https://cdn.discordapp.com/attachments/845036889261998161/890655205174161428/image0.png"
+        };
+        defaultRandomCommand(messages, "!nemu");
+    }
+
+    public void defaultRandomCommand(String[] messages, String command) {
+        int num;
+        try {
+            num = Integer.parseInt(message.substring(command.length()).trim());
+        } catch (Exception e) {
+            num = -1;
+        }
+        if (num < 1 || num > messages.length) {
+            num = new Random().nextInt(messages.length);
+        } else {
+            num--;
+        }
+        sendMessage(messages[num]);
+    }
+
+    public void clearComms() {
+        String x = "x\n\n";
+        StringBuilder msg = new StringBuilder();
+        for (int i = 0; i < 25; i++) {
+            msg.append(x);
+        }
+        sendMessage(msg.toString());
+    }
+
 }

@@ -1,6 +1,8 @@
 package accounts;
 
 import accounts.apiobjects.GW2Account;
+import accounts.apiobjects.Season;
+import leaderboardbot.Leaderboard;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,51 +18,71 @@ public class DatabaseHelper {
 
     public void runScheduledRatingSnapshotUpdate(GW2Account acc, Timestamp insertionTime, boolean isNA) {
         try {
-            String insertOrUpdate = "INSERT INTO rating_snapshots" +
-                    (isNA ? " ":"_eu ") +
-                    "(id, time, rating, wins, losses) " +
-                    "VALUES (?,?,?,?,?)";
-            int id = acc.getAccount_id();
-            if (id == 0) {
-                id = getIdForAccount(acc, isNA);
-                if (id == -1) {
-                    System.out.println("Skipping " + acc.getName() + " due to no matching ID");
-                    return;
-                }
-            }
+            String insertOrUpdate = "INSERT INTO new_rating_snapshots " +
+                    "(account_name, time, rating, wins, losses, season, eu) " +
+                    "VALUES (?,?,?,?,?,?,?)";
             Connection connection = generateConnection();
-            RatingSnapshot lastSnapshot = getLatestSnapshot(acc, connection, isNA);
-//            if (!lastSnapshot.hasSameScoresAsAccount(acc)) {
-                PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
-//                System.out.printf("Inserting %s data into Rating_Snapshot table%n", acc.getName());
-                preparedStatement.setInt(1, id);
-                preparedStatement.setTimestamp(2, insertionTime);
-                preparedStatement.setShort(3, acc.getRating());
-                preparedStatement.setShort(4, acc.getWins());
-                preparedStatement.setShort(5, acc.getLosses());
-                int rs = preparedStatement.executeUpdate();
-                preparedStatement.close();
-//            }
+            PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
+            preparedStatement.setString(1, acc.getName());
+            preparedStatement.setTimestamp(2, insertionTime);
+            preparedStatement.setShort(3, acc.getRating());
+            preparedStatement.setShort(4, acc.getWins());
+            preparedStatement.setShort(5, acc.getLosses());
+            preparedStatement.setByte(6, acc.getSeason().getDatabaseId());
+            preparedStatement.setBoolean(7, !isNA);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
             connection.close();
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
+    public void setSeasonIDs(ArrayList<Season> seasons) {
+        try {
+            Connection connection = generateConnection();
+            for (Season season : seasons) {
+                String key = season.getKey();
+                String query = "SELECT id from season_lookup_table where" +
+                        " season_api_key = '" + key + "'";
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query);
+                if (resultSet.next()) {
+                    season.setDatabaseId(resultSet.getByte("id"));
+                } else {
+                    String insertOrUpdate = "INSERT INTO season_lookup_table " +
+                            "(season_api_key,name) " +
+                            "VALUES (?,?);";
+                    PreparedStatement stmt = connection.prepareStatement(insertOrUpdate, Statement.RETURN_GENERATED_KEYS);
+                    System.out.println("Inserting new season into database with name " + season.getName());
+                    stmt.setString(1, season.getKey());
+                    stmt.setString(2, season.getName());
+                    stmt.executeUpdate();
+                    ResultSet rs = stmt.getGeneratedKeys();
+                    if (rs.next()) {
+                        season.setDatabaseId(rs.getByte(1));
+                    }
+                    rs.close();
+                    stmt.close();
+                }
+                resultSet.close();
+                statement.close();
+            }
+            connection.close();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e);
+        }
+    }
+
     private RatingSnapshot getLatestSnapshot(GW2Account acc, Connection connection, boolean isNA) {
         RatingSnapshot ratingSnapshot = new RatingSnapshot();
-        int id = acc.getAccount_id();
-        if (acc.getAccount_id() == 0) {
-            id = getIdForAccount(acc, isNA);
-        }
-        if (id < 1) {
-            System.out.println("Failed to find id....");
-            return null;
-        }
         try {
-            String query = "SELECT * FROM rating_snapshots" +
-                    (isNA ? " ":"_eu ") +
-                    "WHERE id = " + acc.getAccount_id() + " ORDER BY time desc limit 1";
+            String query = "SELECT * FROM new_rating_snapshots "
+                    + "WHERE account_name = " + acc.getName()
+                    + " and eu = " + (isNA?0:1)
+                    + " and season = " + acc.getSeason().getDatabaseId()
+                    + "ORDER BY time desc limit 1";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
@@ -80,13 +102,13 @@ public class DatabaseHelper {
         return ratingSnapshot;
     }
 
+    @Deprecated
     public int getIdForAccount(GW2Account account, boolean isNA) {
         int id = -1;
         try {
             Connection connection = generateConnection();
-            String query = "SELECT * FROM accounts" +
-                    (isNA ? " ":"_eu ") +
-                    "WHERE name = '" + account.getName() + "'";
+            String query = "SELECT * FROM new_accounts " +
+                    "WHERE name = '" + account.getName() + "' and eu = " + (isNA ? 0 : 1);
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
@@ -99,25 +121,19 @@ public class DatabaseHelper {
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
-        account.setAccount_id(id);
+//        account.setAccount_id(id);
         return id;
     }
 
     public GameHistory loadGameHistory(GW2Account acc, boolean isNA) {
         GameHistory gameHistory = new GameHistory(acc);
-        int id = acc.getAccount_id();
-        if (acc.getAccount_id() == 0) {
-            id = getIdForAccount(acc, isNA);
-        }
-        if (id < 1) {
-            System.out.println("Failed to find id....");
-            return null;
-        }
         try {
             Connection connection = generateConnection();
-            String query = "SELECT * FROM rating_snapshots" +
-                    (isNA ? " ":"_eu ") +
-                    "WHERE id = " + acc.getAccount_id() + " ORDER BY time asc";
+            String query = "SELECT * FROM new_rating_snapshots "
+                    + "WHERE account_name = " + acc.getName()
+                    + " and eu = " + (isNA?0:1)
+                    + " and season = " + acc.getSeason().getDatabaseId()
+                    +" ORDER BY time asc";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
@@ -138,15 +154,18 @@ public class DatabaseHelper {
         return gameHistory;
     }
 
-    public HashMap<String, GW2Account> loadRawAccountMapFromDB(boolean isNA) {
+    public HashMap<String, GW2Account> loadRawAccountMapFromDB(boolean isNA, Season curSeason) {
         HashMap<String, GW2Account> map = new HashMap<>(1000);
 
         try {
             Connection connection = generateConnection();
-            String query = "SELECT * FROM accounts"+
-                    (isNA ? "":"_eu");
+            String query = "SELECT * FROM new_accounts " +
+                    "where season = " + curSeason.getDatabaseId()
+                    + " and eu = " + (isNA?0:1);
+
             GW2Account account;
             Statement statement = connection.createStatement();
+            System.out.println(query);
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
@@ -155,13 +174,8 @@ public class DatabaseHelper {
                 account.setRating(resultSet.getShort("rating"));
                 account.setWins(resultSet.getShort("wins"));
                 account.setLosses(resultSet.getShort("losses"));
-                //account.setOnLeaderboard(resultSet.getBoolean("onleaderboard"));
                 Date date = resultSet.getDate("date");
                 account.setTime(date.getTime());
-                account.setAccount_id(resultSet.getInt("id"));
-//                SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-")
-//                SimpleDateFormat output = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
-
                 map.put(account.getNameToLower(), account);
             }
             resultSet.close();
@@ -175,29 +189,29 @@ public class DatabaseHelper {
         return map;
     }
 
-    public void writeAllAccountsToDB(ArrayList<GW2Account> gw2Accounts, boolean isNA) {
+    public void writeAllAccountsToDB(Leaderboard leaderboard, boolean isNA) {
+        ArrayList<GW2Account> gw2Accounts = leaderboard.getAccountList();
         try {
-            String insertOrUpdate = "INSERT INTO accounts" +
-                    (isNA ? " ":"_eu ") +
-                    "(name,rating,wins,losses,onleaderboard,date) " +
-                    "VALUES (?,?,?,?,?,?) " +
+            String insertOrUpdate = "INSERT INTO new_accounts " +
+                    "(name,eu,season,rating,wins,losses,date) " +
+                    "VALUES (?,?,?,?,?,?,?) " +
                     "ON DUPLICATE KEY UPDATE " +
-                    "rating=?,wins=?,losses=?,onleaderboard=?,date=?;";
+                    "rating=?,wins=?,losses=?,date=?;";
             Connection connection = generateConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
             for (GW2Account acc : gw2Accounts) {
                 //System.out.printf("Inserting %s to DB%n", acc.getName());
                 preparedStatement.setString(1, acc.getName());
-                preparedStatement.setShort(2, acc.getRating());
-                preparedStatement.setShort(3, acc.getWins());
-                preparedStatement.setShort(4, acc.getLosses());
-                preparedStatement.setBoolean(5, acc.isOnLeaderboard());
+                preparedStatement.setBoolean(2, !isNA);
+                preparedStatement.setByte(3, leaderboard.getSeason().getDatabaseId());
+                preparedStatement.setShort(4, acc.getRating());
+                preparedStatement.setShort(5, acc.getWins());
+                preparedStatement.setShort(6, acc.getLosses());
                 Timestamp t = new Timestamp(acc.getTime());
-                preparedStatement.setTimestamp(6, t);
-                preparedStatement.setShort(7, acc.getRating());
-                preparedStatement.setShort(8, acc.getWins());
-                preparedStatement.setShort(9, acc.getLosses());
-                preparedStatement.setBoolean(10, acc.isOnLeaderboard());
+                preparedStatement.setTimestamp(7, t);
+                preparedStatement.setShort(8, acc.getRating());
+                preparedStatement.setShort(9, acc.getWins());
+                preparedStatement.setShort(10, acc.getLosses());
                 preparedStatement.setTimestamp(11, t);
                 int rs = preparedStatement.executeUpdate();
             }

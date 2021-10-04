@@ -1,12 +1,14 @@
 package accounts.apiobjects;
 
 import accounts.AccountListHandler;
+import handlers.TextWidthHelper;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class GW2Account implements Serializable {
@@ -19,7 +21,7 @@ public class GW2Account implements Serializable {
     private short losses;
     private long time;
     private boolean onLeaderboard;
-    private int account_id;
+    private Season season;
 
 
     public String toString() {
@@ -39,7 +41,7 @@ public class GW2Account implements Serializable {
                 getRank() >= 10 ? "" : " ",
                 getRank(),
                 getName(),
-                generateWhiteSpace(150 - getBoldNameWidth()),
+                generateWhiteSpace(240 - getBoldNameWidth()),
                 getRating(),
                 getWins(),
                 getLosses()
@@ -66,17 +68,19 @@ public class GW2Account implements Serializable {
 
     private String generateWhiteSpace(int w) {
         StringBuilder s = new StringBuilder();
-        for (int i = 0; i < w + 2; i += 3) {
+        double spaces = ((double) w - 0.5)/4.5;
+        for (int i = 0; i < spaces; i++){
             s.append(" ");
         }
         return s.toString();
     }
 
     private int getBoldNameWidth() {
-        Font font = new Font("Uni Sans", Font.TYPE1_FONT, 12);
-        return (int) font.getStringBounds(getName(),
-                new FontRenderContext(font.getTransform(), true, true))
-                .getBounds().getWidth();
+        return TextWidthHelper.getBoldWidth(getName());
+//        Font font = new Font("Uni Sans", Font.TYPE1_FONT, 12);
+//        return (int) font.getStringBounds(getName(),
+//                new FontRenderContext(font.getTransform(), true, true))
+//                .getBounds().getWidth();
     }
 
     //Parameter is the filename in src/main/accountsets directory containing list of accounts
@@ -134,7 +138,7 @@ public class GW2Account implements Serializable {
         SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
         try {
             Date t = ft.parse(date);
-            t.setTime(t.getTime() - 1000 * 60 * 60 * 4);
+            t.setTime(t.getTime() + Calendar.getInstance().getTimeZone().getOffset(t.getTime()));
             this.time = t.getTime();
         } catch (ParseException e) { e.printStackTrace();}
     }
@@ -171,13 +175,11 @@ public class GW2Account implements Serializable {
         this.onLeaderboard = onLeaderboard;
     }
 
-    public int getAccount_id() {
-        return account_id;
+    public Season getSeason() {
+        return season;
     }
 
-    public void setAccount_id(int account_id) {
-        this.account_id = account_id;
+    public void setSeason(Season season) {
+        this.season = season;
     }
-
-
 }
