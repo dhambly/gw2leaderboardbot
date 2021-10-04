@@ -21,7 +21,6 @@ public class GW2Account implements Serializable {
     private short losses;
     private long time;
     private boolean onLeaderboard;
-    private int account_id;
     private Season season;
 
 
@@ -174,14 +173,6 @@ public class GW2Account implements Serializable {
 
     public void setOnLeaderboard(boolean onLeaderboard) {
         this.onLeaderboard = onLeaderboard;
-    }
-
-    public int getAccount_id() {
-        return account_id;
-    }
-
-    public void setAccount_id(int account_id) {
-        this.account_id = account_id;
     }
 
     public Season getSeason() {

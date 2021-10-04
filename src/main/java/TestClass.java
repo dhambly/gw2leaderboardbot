@@ -5,6 +5,8 @@ import accounts.apiobjects.Season;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import handlers.APIHandler;
+import leaderboardbot.Leaderboard;
+import net.dv8tion.jda.api.JDABuilder;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
@@ -57,22 +59,14 @@ public class TestClass {
         }
     }
 
-    @Test
-    void loadAccountFileAndStoreIntoDB() throws IOException {
-        Properties prop = new Properties();
-        prop.load(new FileInputStream("config.properties"));
-        DatabaseHelper db = new DatabaseHelper(prop);
-        APIHandler api = new APIHandler();
-        AccountContainer accountContainer = new AccountContainer(api, db, true);
-        db.writeAllAccountsToDB(accountContainer.getAllAccounts(), true);
-    }
 
     @Test
     void loadAndPrintAccountsFromDB() throws IOException {
         Properties prop = new Properties();
         prop.load(new FileInputStream("config.properties"));
         DatabaseHelper db = new DatabaseHelper(prop);
-        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB(true);
+        APIHandler apiHandler = new APIHandler();
+        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB(true, apiHandler.getLatestSeason());
         for (GW2Account account : map.values()) {
             System.out.println(account.reformattedToString());
         }
@@ -133,5 +127,16 @@ public class TestClass {
         DatabaseHelper db = new DatabaseHelper(prop);
         APIHandler api = new APIHandler();
         db.setSeasonIDs(api.getSeasons());
+    }
+
+    @Test
+    void insertLeaderboard() throws IOException {
+        Properties prop = new Properties();
+        prop.load(new FileInputStream("config.properties"));
+        DatabaseHelper db = new DatabaseHelper(prop);
+        APIHandler api = new APIHandler();
+        db.setSeasonIDs(api.getSeasons());
+        AccountContainer accountContainerNA = new AccountContainer(api, db, true);
+        db.writeAllAccountsToDB(accountContainerNA.getCurrentLeaderboardObject(), true);
     }
 }

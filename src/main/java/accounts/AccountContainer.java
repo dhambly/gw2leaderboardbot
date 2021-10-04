@@ -1,6 +1,7 @@
 package accounts;
 
 import accounts.apiobjects.GW2Account;
+import accounts.apiobjects.Season;
 import handlers.APIHandler;
 import leaderboardbot.Leaderboard;
 
@@ -13,6 +14,7 @@ public class AccountContainer {
     private final APIHandler api;
     private final DatabaseHelper db;
     private final boolean isNA;
+
 
 
     public AccountContainer(APIHandler api, DatabaseHelper databaseHelper, boolean isNA) {
@@ -66,13 +68,9 @@ public class AccountContainer {
         for (GW2Account acc : newLeaderboardAccountList) {
             if (!newLeaderboardSet.contains(acc.getNameToLower())) {
                 newLeaderboardSet.add(acc.getNameToLower());
-                if (allAccounts.containsKey(acc.getNameToLower())) {
-                    acc.setAccount_id(allAccounts.get(acc.getNameToLower()).getAccount_id());
-                }
+
                 allAccounts.put(acc.getNameToLower(), acc);
                 offLeaderboardAccountNames.remove(acc.getNameToLower());
-            } else {
-                acc.setAccount_id(allAccounts.get(acc.getNameToLower()).getAccount_id());
             }
         }
         for (GW2Account acc : currentLeaderboard.getAccountList()) {
@@ -82,15 +80,14 @@ public class AccountContainer {
                 acc.setRank(251);
             }
         }
+        this.currentLeaderboard = newLeaderboards;
         this.currentLeaderboard.setAccountList(newLeaderboardAccountList);
-//        System.out.println("attempting write to db....");
-        db.writeAllAccountsToDB(this.currentLeaderboard.getAccountList(), isNA);
-//        System.out.println("finished write to db");
+        db.writeAllAccountsToDB(this.currentLeaderboard, isNA);
         return this.currentLeaderboard.getAccountList();
     }
 
     private HashMap<String, GW2Account> readAccountMapFromDB() {
-        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB(isNA);
+        HashMap<String, GW2Account> map = db.loadRawAccountMapFromDB(isNA, currentLeaderboard.getSeason());
         printHashMapOrderedByRank(map);
         return checkForDrops(map);
     }
@@ -176,4 +173,9 @@ public class AccountContainer {
     public APIHandler getApi() {
         return api;
     }
+
+    public Leaderboard getCurrentLeaderboardObject() {
+        return this.currentLeaderboard;
+    }
+
 }

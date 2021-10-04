@@ -13,7 +13,7 @@ public class Season {
     long start;
     long end;
     boolean active;
-    int databaseId;
+    byte databaseId;
 
     public void setStart(String date) {
         SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'");
@@ -66,11 +66,11 @@ public class Season {
         this.active = active;
     }
 
-    public int getDatabaseId() {
+    public byte getDatabaseId() {
         return databaseId;
     }
 
-    public void setDatabaseId(int databaseId) {
+    public void setDatabaseId(byte databaseId) {
         this.databaseId = databaseId;
     }
 }
