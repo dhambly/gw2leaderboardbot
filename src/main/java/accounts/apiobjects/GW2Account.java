@@ -22,6 +22,7 @@ public class GW2Account implements Serializable {
     private long time;
     private boolean onLeaderboard;
     private int account_id;
+    private Season season;
 
 
     public String toString() {
@@ -183,5 +184,11 @@ public class GW2Account implements Serializable {
         this.account_id = account_id;
     }
 
+    public Season getSeason() {
+        return season;
+    }
 
+    public void setSeason(Season season) {
+        this.season = season;
+    }
 }

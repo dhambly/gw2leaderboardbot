@@ -8,6 +8,7 @@ import handlers.APIHandler;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
@@ -122,6 +123,15 @@ public class TestClass {
         }
 //        latestSeason = seasonIDs.getLast();
 
-//        System.out.println("Season ID:" + latestSeason);
+       System.out.println("Season ID:" + seasons.get(seasons.size()-1));
+    }
+
+    @Test
+    void createSeasons() throws IOException {
+        Properties prop = new Properties();
+        prop.load(new FileInputStream("config.properties"));
+        DatabaseHelper db = new DatabaseHelper(prop);
+        APIHandler api = new APIHandler();
+        db.setSeasonIDs(api.getSeasons());
     }
 }

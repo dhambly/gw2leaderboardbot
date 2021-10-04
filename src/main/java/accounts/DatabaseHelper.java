@@ -54,15 +54,32 @@ public class DatabaseHelper {
             for (Season season : seasons) {
                 String key = season.getKey();
                 String query = "SELECT id from season_lookup_table where" +
-                        "season_api_key = " + key;
+                        " season_api_key = '" + key + "'";
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery(query);
                 if (resultSet.next()) {
-
+                    season.setDatabaseId(resultSet.getInt("id"));
+//                    System.out.println(String.format("Mapped %s to %d", season.getKey(), season.getDatabaseId()));
                 } else {
-
+                    String insertOrUpdate = "INSERT INTO season_lookup_table" +
+                            "(season_api_key,name) " +
+                            "VALUES (?,?);";
+                    PreparedStatement stmt = connection.prepareStatement(insertOrUpdate, Statement.RETURN_GENERATED_KEYS);
+                    System.out.println("Inserting new season into database with name " + season.getName());
+                    stmt.setString(1, season.getKey());
+                    stmt.setString(2, season.getName());
+                    stmt.executeUpdate();
+                    ResultSet rs = stmt.getGeneratedKeys();
+                    if (rs.next()) {
+                        season.setDatabaseId(rs.getInt(1));
+                    }
+                    rs.close();
+                    stmt.close();
                 }
+                resultSet.close();
+                statement.close();
             }
+            connection.close();
 
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println(e);
@@ -107,8 +124,7 @@ public class DatabaseHelper {
         try {
             Connection connection = generateConnection();
             String query = "SELECT * FROM accounts" +
-                    (isNA ? " " : "_eu ") +
-                    "WHERE name = '" + account.getName() + "'";
+                    "WHERE name = '" + account.getName() + "' and eu = " +(isNA?0:1);
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {

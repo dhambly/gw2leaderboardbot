@@ -20,6 +20,7 @@ public class Main {
         String token = prop.getProperty("token");
         JDABuilder builder = JDABuilder.createDefault(token);
         APIHandler api = new APIHandler();
+        db.setSeasonIDs(api.getSeasons());
         AccountContainer accountContainerNA = new AccountContainer(api, db, true);
         AccountContainer accountContainerEU = new AccountContainer(api, db, false);
         builder.addEventListeners(new EventHandler(accountContainerNA, accountContainerEU));

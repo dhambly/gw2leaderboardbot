@@ -3,6 +3,7 @@ package leaderboardbot;
 import accounts.AccountContainer;
 import accounts.DatabaseHelper;
 import accounts.apiobjects.GW2Account;
+import handlers.APIHandler;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -28,12 +29,16 @@ public class AutoUpdater {
     public void schedule() {
         ScheduledExecutorService apiCallSchedule = Executors.newSingleThreadScheduledExecutor();
         apiCallSchedule.scheduleAtFixedRate(() -> {
-            accountContainer.updateLeaderboard();
-            accountContainer_EU.updateLeaderboard();
-            for (AccountTracker tracker : trackers) {
-                tracker.checkForUpdates(tracker.isNA()?accountContainer:accountContainer_EU);
+            if (System.currentTimeMillis() - accountContainer.getApi().getLatestSeason().getEnd() < 86400000) {
+                accountContainer.updateLeaderboard();
+                accountContainer_EU.updateLeaderboard();
+                for (AccountTracker tracker : trackers) {
+                    tracker.checkForUpdates(tracker.isNA() ? accountContainer : accountContainer_EU);
+                }
+                System.out.println("Automatically updated leaderboard.");
+            } else {
+                System.out.println("Skipped update due to season being over for a day.");
             }
-            System.out.println("Automatically updated leaderboard.");
         }, timeUntilNextMinute(), 60 * 1000, TimeUnit.MILLISECONDS);
 
         ScheduledExecutorService updateRatingSnapshotsSchedule = Executors.newSingleThreadScheduledExecutor();
@@ -47,7 +52,14 @@ public class AutoUpdater {
                 databaseHelper.runScheduledRatingSnapshotUpdate(acc, timestamp, false);
             }
 
-        }, timeUntilTopOfHour(), 60*60*1000, TimeUnit.MILLISECONDS);
+        }, timeUntilTopOfHour(), 60 * 60 * 1000, TimeUnit.MILLISECONDS);
+
+        ScheduledExecutorService checkForNewSeason = Executors.newSingleThreadScheduledExecutor();
+        checkForNewSeason.scheduleAtFixedRate(() -> {
+            APIHandler api = accountContainer.getApi();
+            api.reinitializeSeasons();
+            databaseHelper.setSeasonIDs(api.getSeasons());
+        }, timeUntilTopOfHour() - 60000, 24 * 60 * 60 * 1000, TimeUnit.MILLISECONDS);
 
     }
 
@@ -59,7 +71,7 @@ public class AutoUpdater {
     private long timeUntil5Mins() {
         Calendar calendar = Calendar.getInstance();
         int minutes = calendar.get(Calendar.MINUTE);
-        int minutesTilNext5 = 5-(minutes%5);
+        int minutesTilNext5 = 5 - (minutes % 5);
         LocalDateTime nextStart = LocalDateTime.now().plusMinutes(minutesTilNext5).truncatedTo(ChronoUnit.MINUTES);
         return LocalDateTime.now().until(nextStart, ChronoUnit.MILLIS);
     }
