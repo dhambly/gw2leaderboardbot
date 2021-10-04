@@ -45,25 +45,24 @@ public class CommandHandler {
     }
 
     public void help() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Current commands:\n").
-                append("!chimpcheck\n")
-                .append("!rankedegirls\n")
-                .append("!biggestloser\n")
-                .append("!addict\n")
-                .append("!topaddicts\n")
-                .append("!top[X] or !top[X]-[Y]\n")
-                .append("!lookup [account]\n")
-                .append("!fallen\n")
-                .append("!shitter or !shitter [min games]\n")
-                .append("!getrating [API-KEY]\n")
-                .append("!rank [X]\n")
-                .append("!history [account]\n")
-                .append("!dailyhistory/!hourlygraph [account]\n")
-                .append("!historygraph [account]\n")
-                .append("!expose [account]\n")
-                .append("!buttbuddies");
-        sendMessage(sb.toString());
+        String sb = "Current commands:\n" +
+                "!chimpcheck\n" +
+                "!rankedegirls\n" +
+                "!biggestloser\n" +
+                "!addict\n" +
+                "!topaddicts\n" +
+                "!top[X] or !top[X]-[Y]\n" +
+                "!lookup [account]\n" +
+                "!fallen\n" +
+                "!shitter or !shitter [min games]\n" +
+                "!getrating [API-KEY]\n" +
+                "!rank [X]\n" +
+                "!history [account]\n" +
+                "!dailyhistory/!hourlygraph [account]\n" +
+                "!historygraph [account]\n" +
+                "!expose [account]\n" +
+                "!buttbuddies";
+        sendMessage(sb);
     }
 
     public void chimpCheck() {
@@ -628,17 +627,13 @@ public class CommandHandler {
 
     public void clearComms() {
         String x = "x\n\n";
-        StringBuilder msg = new StringBuilder();
-        for (int i = 0; i < 25; i++) {
-            msg.append(x);
-        }
-        sendMessage(msg.toString());
+        sendMessage(x.repeat(25));
     }
 
     public void zooseNutsJar() {
         ArrayList<String> messages = accountContainer.getDb().getRandomMultiThing("zoosenuts");
         StringBuilder sb = new StringBuilder();
-        sb.append("The current zoose nuts jar has ")
+        sb.append("The zoose nuts jar has ")
                 .append(messages.size())
                 .append(" nuts references, including:\n");
         Random random = new Random();
