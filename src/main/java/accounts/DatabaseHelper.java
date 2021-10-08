@@ -28,6 +28,9 @@ public class DatabaseHelper {
             preparedStatement.setShort(3, acc.getRating());
             preparedStatement.setShort(4, acc.getWins());
             preparedStatement.setShort(5, acc.getLosses());
+            if (acc.getSeason() == null) {
+                System.out.println("Season is null");
+            }
             preparedStatement.setByte(6, acc.getSeason().getDatabaseId());
             preparedStatement.setBoolean(7, !isNA);
             preparedStatement.executeUpdate();
@@ -130,8 +133,8 @@ public class DatabaseHelper {
         try {
             Connection connection = generateConnection();
             String query = "SELECT * FROM new_rating_snapshots "
-                    + "WHERE account_name = " + acc.getName()
-                    + " and eu = " + (isNA ? 0 : 1)
+                    + "WHERE account_name = '" + acc.getName()
+                    + "' and eu = " + (isNA ? 0 : 1)
                     + " and season = " + acc.getSeason().getDatabaseId()
                     + " ORDER BY time asc";
             Statement statement = connection.createStatement();

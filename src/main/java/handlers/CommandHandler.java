@@ -154,7 +154,8 @@ public class CommandHandler {
                 minGames = Integer.parseInt(splitMsg[1]);
             } catch (NumberFormatException e) {
                 System.err.println(e.toString());
-                sendMessage("put in numbers you fucking faggot");
+                char[] c = {102, 97, 103, 103, 111 ,116};
+                sendMessage("put in numbers you " + String.copyValueOf(c));
             }
         }
         ArrayList<GW2Account> list = accountContainer.getAllAccounts();
@@ -266,6 +267,13 @@ public class CommandHandler {
         sendMessage(message);
     }
 
+    public void moobs() {
+        String[] messages = {
+                "https://cdn.discordapp.com/attachments/797310153073491979/895387318637166602/unknown.png"
+        };
+        defaultRandomCommand(messages, "!moobs");
+    }
+
     public void getName(String name) {
         ArrayList<GW2Account> lookup = accountContainer.getAllMatchingAccounts(name.toLowerCase());
         StringBuilder sb = new StringBuilder();
@@ -318,7 +326,8 @@ public class CommandHandler {
             sendMessage(formattedMessage);
         } catch (NumberFormatException e) {
             System.err.println(e.toString());
-            sendMessage("put in numbers you fucking faggot");
+            char[] c = {102, 97, 103, 103, 111 ,116};
+            sendMessage("put in numbers you " + String.copyValueOf(c));
         }
     }
 
@@ -346,7 +355,8 @@ public class CommandHandler {
     }
 
     public void calebSwag() {
-        sendMessage("is a faggot");
+        char[] c = {102, 97, 103, 103, 111 ,116};
+        sendMessage("is a " + String.copyValueOf(c));
     }
 
     public void historyLookup(String name) {
@@ -378,7 +388,7 @@ public class CommandHandler {
     public void forceHistoryUpdate() {
         System.out.println("Attemping unscheduled insertion...");
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.HOURS));
-        for (GW2Account acc : accountContainer.getAllAccounts()) {
+        for (GW2Account acc : accountContainer.getCurrentLeaderboard()) {
             accountContainer.getDb().runScheduledRatingSnapshotUpdate(acc, timestamp, isNA);
         }
     }

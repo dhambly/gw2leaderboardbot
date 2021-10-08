@@ -67,7 +67,8 @@ public class EventHandler extends ListenerAdapter {
             } else if (message.equalsIgnoreCase("!kaypud")) {
                 commands.kaypud();
             } else if (message.equalsIgnoreCase("!moobs")) {
-                commands.checkmoobs();
+//                commands.checkmoobs();
+                commands.moobs();
             } else if (message.equalsIgnoreCase("!ari ebois")) {
                 commands.ariEbois();
             } else if (message.toLowerCase().startsWith("!top")) {
