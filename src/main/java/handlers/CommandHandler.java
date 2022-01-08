@@ -647,7 +647,10 @@ public class CommandHandler {
                 .append(messages.size())
                 .append(" nuts references, including:\n");
         Random random = new Random();
-        for (int i = 0; i < 6 && messages.size() > 0; i++) {
+        sb.append(messages.get(0));
+        sb.append("\n");
+        messages.remove(0);
+        for (int i = 0; i < 5 && messages.size() > 0; i++) {
             int rand = random.nextInt(messages.size());
             sb.append(messages.get(rand));
             sb.append("\n");

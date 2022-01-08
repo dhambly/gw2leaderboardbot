@@ -282,7 +282,7 @@ public class DatabaseHelper {
         ArrayList<String> things = new ArrayList<>();
         try {
             Connection connection = generateConnection();
-            String query = "select thething from random_multi_things where id_name = '" + key+"'";
+            String query = "select thething from random_multi_things where id_name = '" + key+"' order by id desc";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
