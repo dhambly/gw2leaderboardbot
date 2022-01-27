@@ -1,5 +1,6 @@
 import accounts.AccountContainer;
 import accounts.DatabaseHelper;
+import accounts.GameHistory;
 import accounts.apiobjects.GW2Account;
 import accounts.apiobjects.Season;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -14,9 +15,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
+import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 
 import static java.lang.String.format;
 
@@ -117,7 +120,7 @@ public class TestClass {
         }
 //        latestSeason = seasonIDs.getLast();
 
-       System.out.println("Season ID:" + seasons.get(seasons.size()-1));
+        System.out.println("Season ID:" + seasons.get(seasons.size() - 1));
     }
 
     @Test
@@ -138,5 +141,84 @@ public class TestClass {
         db.setSeasonIDs(api.getSeasons());
         AccountContainer accountContainerNA = new AccountContainer(api, db, true);
         db.writeAllAccountsToDB(accountContainerNA.getCurrentLeaderboardObject(), true);
+    }
+
+    @Test
+    void InsertRandomThing() throws IOException {
+        Properties prop = new Properties();
+        prop.load(new FileInputStream("config.properties"));
+        DatabaseHelper db = new DatabaseHelper(prop);
+        db.insertMultiRandomThing("deeznuts", "sdjfioasdjf");
+        db.insertMultiRandomThing("deeznuts", "sdjfisdfasdfoasdjf");
+    }
+
+    @Test
+    void getRandomMultiThing() throws IOException {
+        Properties prop = new Properties();
+        prop.load(new FileInputStream("config.properties"));
+        DatabaseHelper db = new DatabaseHelper(prop);
+        System.out.println(db.getRandomMultiThing("zoosenuts"));
+    }
+
+    @Test
+    void testGameHistory() throws IOException {
+        Properties prop = new Properties();
+        prop.load(new FileInputStream("config.properties"));
+        DatabaseHelper db = new DatabaseHelper(prop);
+        GW2Account acc = new GW2Account();
+        acc.setName("NotoriousNaru.6241");
+        Season season = new Season();
+        season.setDatabaseId((byte) 37);
+        acc.setSeason(season);
+        GameHistory gh = db.loadGameHistory(acc, true);
+        gh.getRatingHistory().forEach(e-> System.out.println(e.rating));
+    }
+
+    @Test
+    void loadGameHistoryFromDB() throws IOException, ClassNotFoundException, SQLException {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream("config.properties"));
+        DatabaseHelper db = new DatabaseHelper(properties);
+        String db_connection = properties.getProperty("db_connection");
+        String db_user = properties.getProperty("db_user");
+        String db_password = properties.getProperty("db_password");
+        Class.forName(properties.getProperty("db_driver"));
+        GW2Account acc = new GW2Account();
+        acc.setName("NotoriousNaru.6241");
+        Season season = new Season();
+        season.setDatabaseId((byte) 37);
+        acc.setSeason(season);
+        Connection connection =  DriverManager.getConnection(db_connection, db_user, db_password);
+        GameHistory gameHistory = new GameHistory(acc);
+        try {
+//            String query = "SELECT * FROM new_rating_snapshots "
+//                    + "WHERE account_name = '" + acc.getName()
+//                    + "' and eu = " + (0)
+//                    + " and season = " + acc.getSeason().getDatabaseId()
+//                    + " ORDER BY time asc";
+            String query = "SELECT * FROM new_rating_snapshots \n" +
+                    "                    WHERE account_name = 'NotoriousNaru.6241'\n" +
+                    "                    and eu = 0\n" +
+                    "                    and season = 37\n" +
+                    "                    ORDER BY time asc";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            System.out.println(resultSet);
+            while (resultSet.next()) {
+                Timestamp time = resultSet.getTimestamp("time");
+                short rating = resultSet.getShort("rating");
+                short wins = resultSet.getShort("wins");
+                short losses = resultSet.getShort("losses");
+                gameHistory.addGameHistory(rating, wins, losses, time);
+                System.out.println(time);
+            }
+            resultSet.close();
+            statement.close();
+            connection.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        gameHistory.getRatingHistory().forEach(e -> System.out.println(e.time));
     }
 }

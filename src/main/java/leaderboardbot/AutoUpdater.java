@@ -45,10 +45,10 @@ public class AutoUpdater {
         updateRatingSnapshotsSchedule.scheduleAtFixedRate(() -> {
             System.out.println("Attempting to write rating snapshots.");
             Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.HOURS));
-            for (GW2Account acc : accountContainer.getAllAccounts()) {
+            for (GW2Account acc : accountContainer.getCurrentLeaderboard()) {
                 databaseHelper.runScheduledRatingSnapshotUpdate(acc, timestamp, true);
             }
-            for (GW2Account acc : accountContainer_EU.getAllAccounts()) {
+            for (GW2Account acc : accountContainer_EU.getCurrentLeaderboard()) {
                 databaseHelper.runScheduledRatingSnapshotUpdate(acc, timestamp, false);
             }
 

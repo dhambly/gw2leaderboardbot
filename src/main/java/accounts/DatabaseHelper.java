@@ -28,6 +28,9 @@ public class DatabaseHelper {
             preparedStatement.setShort(3, acc.getRating());
             preparedStatement.setShort(4, acc.getWins());
             preparedStatement.setShort(5, acc.getLosses());
+            if (acc.getSeason() == null) {
+                System.out.println("Season is null");
+            }
             preparedStatement.setByte(6, acc.getSeason().getDatabaseId());
             preparedStatement.setBoolean(7, !isNA);
             preparedStatement.executeUpdate();
@@ -80,7 +83,7 @@ public class DatabaseHelper {
         try {
             String query = "SELECT * FROM new_rating_snapshots "
                     + "WHERE account_name = " + acc.getName()
-                    + " and eu = " + (isNA?0:1)
+                    + " and eu = " + (isNA ? 0 : 1)
                     + " and season = " + acc.getSeason().getDatabaseId()
                     + "ORDER BY time desc limit 1";
             Statement statement = connection.createStatement();
@@ -130,10 +133,10 @@ public class DatabaseHelper {
         try {
             Connection connection = generateConnection();
             String query = "SELECT * FROM new_rating_snapshots "
-                    + "WHERE account_name = " + acc.getName()
-                    + " and eu = " + (isNA?0:1)
+                    + "WHERE account_name = '" + acc.getName()
+                    + "' and eu = " + (isNA ? 0 : 1)
                     + " and season = " + acc.getSeason().getDatabaseId()
-                    +" ORDER BY time asc";
+                    + " ORDER BY time asc";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
@@ -161,11 +164,10 @@ public class DatabaseHelper {
             Connection connection = generateConnection();
             String query = "SELECT * FROM new_accounts " +
                     "where season = " + curSeason.getDatabaseId()
-                    + " and eu = " + (isNA?0:1);
+                    + " and eu = " + (isNA ? 0 : 1);
 
             GW2Account account;
             Statement statement = connection.createStatement();
-            System.out.println(query);
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
@@ -221,6 +223,75 @@ public class DatabaseHelper {
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public void updateRandomThing(String key, String value) {
+        try {
+            String insertOrUpdate = "INSERT INTO random_stuff " +
+                    "(name, thething) " +
+                    "VALUES (?,?) " +
+                    "ON DUPLICATE KEY UPDATE " +
+                    "thething=?;";
+            Connection connection = generateConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
+            preparedStatement.setString(1, key);
+            preparedStatement.setString(2, value);
+            preparedStatement.setString(3, value);
+            int rs = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            connection.close();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    public String getRandomThing(String key) {
+        String result = null;
+        try {
+            Connection connection = generateConnection();
+            String query = "select thething from random_stuff where name = '" + key+"'";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            if (resultSet.next()) {
+                result = resultSet.getString("thething");
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public void insertMultiRandomThing(String key, String value) {
+        try {
+            String insertOrUpdate = "INSERT INTO random_multi_things " +
+                    "(id_name, thething) " +
+                    "VALUES (?,?) ";
+            Connection connection = generateConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(insertOrUpdate);
+            preparedStatement.setString(1, key);
+            preparedStatement.setString(2, value);
+            int rs = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<String> getRandomMultiThing(String key) {
+        ArrayList<String> things = new ArrayList<>();
+        try {
+            Connection connection = generateConnection();
+            String query = "select thething from random_multi_things where id_name = '" + key+"' order by id desc";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                things.add(resultSet.getString("thething"));
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return things;
     }
 
     private Connection generateConnection() throws ClassNotFoundException, SQLException {

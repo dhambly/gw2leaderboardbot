@@ -4,6 +4,7 @@ import accounts.AccountContainer;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Random;
@@ -18,7 +19,7 @@ public class EventHandler extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         try {
             chooseCommand(event);
         } catch (IOException e) {
@@ -44,6 +45,10 @@ public class EventHandler extends ListenerAdapter {
                 isNA = false;
             }
             CommandHandler commands = new CommandHandler(container, event, isNA);
+            if (event.getMessage().getAuthor().getName().toLowerCase().contains("zoose")
+                    && (message.contains("balls") || message.contains("nuts")) && (!message.startsWith("!zoose"))) {
+                container.getDb().insertMultiRandomThing("zoosenuts", event.getMessage().getContentDisplay());
+            }
             if (message.trim().equalsIgnoreCase("!chimpcheck")) {
                 commands.chimpCheck();
             } else if (message.equalsIgnoreCase("!topaddicts")) {
@@ -62,7 +67,8 @@ public class EventHandler extends ListenerAdapter {
             } else if (message.equalsIgnoreCase("!kaypud")) {
                 commands.kaypud();
             } else if (message.equalsIgnoreCase("!moobs")) {
-                commands.checkmoobs();
+//                commands.checkmoobs();
+                commands.moobs();
             } else if (message.equalsIgnoreCase("!ari ebois")) {
                 commands.ariEbois();
             } else if (message.toLowerCase().startsWith("!top")) {
@@ -136,6 +142,8 @@ public class EventHandler extends ListenerAdapter {
                 commands.nemu();
             } else if (message.equalsIgnoreCase("!clearcomms")) {
                 commands.clearComms();
+            } else if (message.equalsIgnoreCase("!zoosenutsjar") || message.equalsIgnoreCase("!zooseballsjar")) {
+                commands.zooseNutsJar();
             }
         } catch (Exception e) {
             e.printStackTrace();
